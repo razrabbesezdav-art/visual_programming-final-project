@@ -54,7 +54,7 @@ export function evaluateFormula(
   formula: string,
   getCell: CellGetter
 ): string | number | boolean | null {
-  if (!formula.startsWith('=')) return formula // если не формула
+  if (!formula.startsWith('=')) return formula
   const expr = formula.substring(1).trim()
 
   // SUM
@@ -69,7 +69,7 @@ export function evaluateFormula(
     return averageRange(avgMatch[1], avgMatch[2], getCell)
   }
 
-  // Простые арифметические выражения: A1+B1, A1*2, 2+A1, сложение, вычитание, деление и умножение
+  // Простые арифметические выражения
   const arithmeticMatch = expr.match(/^([A-Z]+\d+)([+\-*/])([A-Z]+\d+|\d+(\.\d+)?)$/i)
   if (arithmeticMatch) {
     const leftId = arithmeticMatch[1]
@@ -103,7 +103,6 @@ export function evaluateFormula(
     return cell ? cell.computedValue : null
   }
 
-  // возврат строки
   return formula
 }
 

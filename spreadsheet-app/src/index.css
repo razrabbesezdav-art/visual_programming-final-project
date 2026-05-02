@@ -1,4 +1,3 @@
-/* Сброс отступов и растягивание на весь экран */
 *,
 *::before,
 *::after {
@@ -56,7 +55,7 @@ body,
   font-size: inherit;
 }
 
-/* Сетка: заголовки + грид */
+/* Сетка: заголовки */
 .spreadsheet-body {
   display: grid;
   grid-template-columns: 50px 1fr;

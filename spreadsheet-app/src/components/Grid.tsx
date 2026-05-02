@@ -33,7 +33,7 @@ export const Grid: React.FC<GridProps> = ({
   useEffect(() => {
     const container = containerRef.current
     if (!container) return
-    const observer = new ResizeObserver(entries => {
+    const observer = new ResizeObserver((entries) => {
       const { width, height } = entries[0].contentRect
       setViewportHeight(height)
       setViewportWidth(width)
@@ -142,13 +142,17 @@ export const Grid: React.FC<GridProps> = ({
       }}
       onScroll={handleScroll}
     >
-      <div style={{ width: totalWidth, height: totalHeight, position: 'relative' }}>
-        {visibleRows.map(row =>
-          visibleCols.map(col => {
+      <div
+        style={{ width: totalWidth, height: totalHeight, position: 'relative' }}
+      >
+        {visibleRows.map((row) =>
+          visibleCols.map((col) => {
             const id = toCellId(row, col)
             const cellData = store.cells[id] || { displayValue: '' }
-            const isSelected = selectedCell?.row === row && selectedCell?.col === col
-            const isEditing = editingCell?.row === row && editingCell?.col === col
+            const isSelected =
+              selectedCell?.row === row && selectedCell?.col === col
+            const isEditing =
+              editingCell?.row === row && editingCell?.col === col
             const isInRangeCell = selectedRange
               ? isInRange({ row, col }, selectedRange)
               : false
@@ -160,9 +164,9 @@ export const Grid: React.FC<GridProps> = ({
                   isSelected={!!isSelected}
                   isInRange={!!isInRangeCell}
                   isEditing={!!isEditing}
-                  onCommit={val => onCellCommit({ row, col }, val)}
+                  onCommit={(val) => onCellCommit({ row, col }, val)}
                   onDoubleClick={() => onCellDoubleClick({ row, col })}
-                  onMouseDown={e => onCellMouseDown({ row, col }, e)}
+                  onMouseDown={(e) => onCellMouseDown({ row, col }, e)}
                   width={store.columnWidths[col] || 100}
                   height={store.rowHeights[row] || 24}
                 />

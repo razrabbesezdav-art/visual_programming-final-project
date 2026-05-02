@@ -1,10 +1,5 @@
 import { useReducer, useCallback } from 'react'
-import {
-  SpreadsheetStore,
-  CellData,
-  Action,
-  Position,
-} from '@/types'
+import { SpreadsheetStore, CellData, Action, Position } from '@/types'
 import { toCellId, parseCellId } from '@/utils/cellUtils'
 import { evaluateFormula, detectType } from '@/utils/formulaParser'
 
@@ -29,8 +24,12 @@ function initializeStore(rows: number, cols: number): SpreadsheetStore {
   }
   return {
     cells,
-    columnWidths: Object.fromEntries(Array.from({ length: cols }, (_, i) => [i, DEFAULT_COL_WIDTH])),
-    rowHeights: Object.fromEntries(Array.from({ length: rows }, (_, i) => [i, DEFAULT_ROW_HEIGHT])),
+    columnWidths: Object.fromEntries(
+      Array.from({ length: cols }, (_, i) => [i, DEFAULT_COL_WIDTH])
+    ),
+    rowHeights: Object.fromEntries(
+      Array.from({ length: rows }, (_, i) => [i, DEFAULT_ROW_HEIGHT])
+    ),
     rowCount: rows,
     colCount: cols,
   }
@@ -42,8 +41,12 @@ function recalcAll(state: SpreadsheetStore): SpreadsheetStore {
   for (const id in newCells) {
     const cell = newCells[id]
     if (cell.type === 'formula') {
-      const res = evaluateFormula(cell.rawValue, (refId) => newCells[refId] || undefined)
-      const newDisplay = res === null || res === undefined ? '#ERROR' : String(res)
+      const res = evaluateFormula(
+        cell.rawValue,
+        (refId) => newCells[refId] || undefined
+      )
+      const newDisplay =
+        res === null || res === undefined ? '#ERROR' : String(res)
       newCells[id] = {
         ...cell,
         computedValue: res,
@@ -85,7 +88,12 @@ function shiftRows(
   if (insertEmptyRowAt !== null) {
     for (let c = 0; c < colCount; c++) {
       const id = toCellId(insertEmptyRowAt, c)
-      newCells[id] = { rawValue: '', computedValue: null, displayValue: '', type: 'string' }
+      newCells[id] = {
+        rawValue: '',
+        computedValue: null,
+        displayValue: '',
+        type: 'string',
+      }
     }
   }
   return {
@@ -119,7 +127,12 @@ function shiftCols(
   }
   if (insertEmptyColAt !== null) {
     for (let r = 0; r < rowCount; r++) {
-      newCells[toCellId(r, insertEmptyColAt)] = { rawValue: '', computedValue: null, displayValue: '', type: 'string' }
+      newCells[toCellId(r, insertEmptyColAt)] = {
+        rawValue: '',
+        computedValue: null,
+        displayValue: '',
+        type: 'string',
+      }
     }
   }
   return {
@@ -139,8 +152,8 @@ function reducer(state: SpreadsheetStore, action: Action): SpreadsheetStore {
           type === 'number'
             ? Number(action.value)
             : type === 'boolean'
-            ? action.value === 'true'
-            : null,
+              ? action.value === 'true'
+              : null,
         displayValue: action.value,
         type,
       }
@@ -282,7 +295,10 @@ function reducer(state: SpreadsheetStore, action: Action): SpreadsheetStore {
   }
 }
 
-export function useSpreadsheetData(initialRows = DEFAULT_ROWS, initialCols = DEFAULT_COLS) {
+export function useSpreadsheetData(
+  initialRows = DEFAULT_ROWS,
+  initialCols = DEFAULT_COLS
+) {
   const [store, dispatch] = useReducer(
     reducer,
     { rows: initialRows, cols: initialCols },
@@ -302,12 +318,30 @@ export function useSpreadsheetData(initialRows = DEFAULT_ROWS, initialCols = DEF
   }, [])
 
   // Методы для контекстного меню
-  const addRowAbove = useCallback((row: number) => dispatch({ type: 'ADD_ROW_ABOVE', row }), [])
-  const addRowBelow = useCallback((row: number) => dispatch({ type: 'ADD_ROW_BELOW', row }), [])
-  const deleteRow = useCallback((row: number) => dispatch({ type: 'DELETE_ROW', row }), [])
-  const addColLeft = useCallback((col: number) => dispatch({ type: 'ADD_COLUMN_LEFT', col }), [])
-  const addColRight = useCallback((col: number) => dispatch({ type: 'ADD_COLUMN_RIGHT', col }), [])
-  const deleteCol = useCallback((col: number) => dispatch({ type: 'DELETE_COLUMN', col }), [])
+  const addRowAbove = useCallback(
+    (row: number) => dispatch({ type: 'ADD_ROW_ABOVE', row }),
+    []
+  )
+  const addRowBelow = useCallback(
+    (row: number) => dispatch({ type: 'ADD_ROW_BELOW', row }),
+    []
+  )
+  const deleteRow = useCallback(
+    (row: number) => dispatch({ type: 'DELETE_ROW', row }),
+    []
+  )
+  const addColLeft = useCallback(
+    (col: number) => dispatch({ type: 'ADD_COLUMN_LEFT', col }),
+    []
+  )
+  const addColRight = useCallback(
+    (col: number) => dispatch({ type: 'ADD_COLUMN_RIGHT', col }),
+    []
+  )
+  const deleteCol = useCallback(
+    (col: number) => dispatch({ type: 'DELETE_COLUMN', col }),
+    []
+  )
 
   return {
     store,

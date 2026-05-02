@@ -1,31 +1,36 @@
-import React, { useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
+import React, {
+  useRef,
+  useEffect,
+  forwardRef,
+  useImperativeHandle,
+} from 'react'
 
 interface FormulaBarProps {
-  value: string;
-  onChange: (value: string) => void;
+  value: string
+  onChange: (value: string) => void
 }
 
 export const FormulaBar = forwardRef<HTMLInputElement, FormulaBarProps>(
   ({ value, onChange }, ref) => {
-    const innerRef = useRef<HTMLInputElement>(null);
+    const innerRef = useRef<HTMLInputElement>(null)
 
-    useImperativeHandle(ref, () => innerRef.current!);
+    useImperativeHandle(ref, () => innerRef.current!)
 
     useEffect(() => {
       if (innerRef.current) {
-        innerRef.current.value = value;
+        innerRef.current.value = value
       }
-    }, [value]);
+    }, [value])
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      onChange(e.target.value);
-    };
+      onChange(e.target.value)
+    }
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter') {
-        onChange(e.currentTarget.value);
+        onChange(e.currentTarget.value)
       }
-    };
+    }
 
     return (
       <div className="formula-bar">
@@ -38,6 +43,6 @@ export const FormulaBar = forwardRef<HTMLInputElement, FormulaBarProps>(
           onKeyDown={handleKeyDown}
         />
       </div>
-    );
+    )
   }
-);
+)

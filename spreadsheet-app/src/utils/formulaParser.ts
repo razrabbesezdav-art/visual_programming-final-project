@@ -18,7 +18,11 @@ function getNumericValue(cellId: string, getCell: CellGetter): number | null {
 }
 
 // Сумма диапазона
-function sumRange(start: string, end: string, getCell: CellGetter): number | null {
+function sumRange(
+  start: string,
+  end: string,
+  getCell: CellGetter
+): number | null {
   const s = parseCellId(start)
   const e = parseCellId(end)
   let sum = 0
@@ -33,7 +37,11 @@ function sumRange(start: string, end: string, getCell: CellGetter): number | nul
 }
 
 // Среднее диапазона
-function averageRange(start: string, end: string, getCell: CellGetter): number | null {
+function averageRange(
+  start: string,
+  end: string,
+  getCell: CellGetter
+): number | null {
   const s = parseCellId(start)
   const e = parseCellId(end)
   let sum = 0
@@ -70,7 +78,9 @@ export function evaluateFormula(
   }
 
   // Простые арифметические выражения
-  const arithmeticMatch = expr.match(/^([A-Z]+\d+)([+\-*/])([A-Z]+\d+|\d+(\.\d+)?)$/i)
+  const arithmeticMatch = expr.match(
+    /^([A-Z]+\d+)([+\-*/])([A-Z]+\d+|\d+(\.\d+)?)$/i
+  )
   if (arithmeticMatch) {
     const leftId = arithmeticMatch[1]
     const operator = arithmeticMatch[2]
@@ -88,11 +98,16 @@ export function evaluateFormula(
     if (rightVal === null) return null
 
     switch (operator) {
-      case '+': return leftVal + rightVal
-      case '-': return leftVal - rightVal
-      case '*': return leftVal * rightVal
-      case '/': return rightVal !== 0 ? leftVal / rightVal : null
-      default: return null
+      case '+':
+        return leftVal + rightVal
+      case '-':
+        return leftVal - rightVal
+      case '*':
+        return leftVal * rightVal
+      case '/':
+        return rightVal !== 0 ? leftVal / rightVal : null
+      default:
+        return null
     }
   }
 
@@ -107,7 +122,9 @@ export function evaluateFormula(
 }
 
 // автоопределение типа значения
-export function detectType(raw: string): 'string' | 'number' | 'boolean' | 'formula' {
+export function detectType(
+  raw: string
+): 'string' | 'number' | 'boolean' | 'formula' {
   if (raw.startsWith('=')) return 'formula'
   if (raw === 'true' || raw === 'false') return 'boolean'
   const num = Number(raw)

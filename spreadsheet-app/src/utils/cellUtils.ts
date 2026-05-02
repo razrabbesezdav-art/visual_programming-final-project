@@ -32,7 +32,10 @@ export function parseCellId(cellId: string): { row: number; col: number } {
 
 export function isInRange(
   cell: { row: number; col: number },
-  range: { start: { row: number; col: number }; end: { row: number; col: number } }
+  range: {
+    start: { row: number; col: number }
+    end: { row: number; col: number }
+  }
 ): boolean {
   const minRow = Math.min(range.start.row, range.end.row)
   const maxRow = Math.max(range.start.row, range.end.row)

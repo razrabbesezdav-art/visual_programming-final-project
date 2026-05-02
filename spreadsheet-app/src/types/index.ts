@@ -1,7 +1,7 @@
 export type CellType = 'string' | 'number' | 'boolean' | 'formula'
 
 export interface CellData {
-  rawValue: string   // ввод
+  rawValue: string // ввод
   computedValue: string | number | boolean | null
   displayValue: string // отображение
   type: CellType

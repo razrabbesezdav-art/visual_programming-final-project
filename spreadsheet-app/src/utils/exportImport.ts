@@ -1,5 +1,5 @@
-import { SpreadsheetStore, CellData } from '@/types'
-import { downloadFile } from './csv'
+import { SpreadsheetStore } from '@/types'
+import { exportToCSV, downloadFile } from './csv'
 
 export function exportToJSON(store: SpreadsheetStore): string {
   const data = {
@@ -26,7 +26,6 @@ export function importFromJSON(jsonContent: string): SpreadsheetStore | null {
 
     const { spreadsheet } = data
 
-    // Валидация
     if (!spreadsheet.cells || !spreadsheet.rowCount || !spreadsheet.colCount) {
       throw new Error('Missing required fields')
     }
@@ -51,7 +50,6 @@ export function downloadJSON(store: SpreadsheetStore) {
 }
 
 export function downloadCSV(store: SpreadsheetStore) {
-  const { exportToCSV } = require('./csv')
   const content = exportToCSV(store)
   const filename = `spreadsheet-${new Date().toISOString().split('T')[0]}.csv`
   downloadFile(content, filename, 'text/csv')

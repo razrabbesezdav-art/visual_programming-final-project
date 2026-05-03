@@ -253,7 +253,7 @@ export function evaluateFormula(
         return result
       }
     }
-  } catch (e) {
+  } catch {
     return '#ERROR'
   }
 

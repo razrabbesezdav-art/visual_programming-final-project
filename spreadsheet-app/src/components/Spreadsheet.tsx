@@ -41,7 +41,6 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
   const [scrollTop, setScrollTop] = useState(0)
   const [scrollLeft, setScrollLeft] = useState(0)
   const [documentName, setDocumentName] = useState('')
-
   const { saveStatus, scheduleSave, manualSave } = useAutoSave(
     documentId,
     store
@@ -56,30 +55,33 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
 
   const formulaBarRef = useRef<HTMLInputElement>(null)
 
-  // Загрузка документа при открытии
+  const loadDocumentFromApi = useCallback(
+    async (id: string) => {
+      try {
+        const doc = await documentsApi.get(id)
+        if (doc) {
+          setDocumentName(doc.name)
+          loadDocument({
+            cells: doc.cells,
+            columnWidths: doc.columnWidths,
+            rowHeights: doc.rowHeights,
+            rowCount: doc.rowCount,
+            colCount: doc.colCount,
+          })
+        }
+      } catch (error) {
+        console.error('Failed to load document:', error)
+      }
+    },
+    [loadDocument]
+  )
+
   useEffect(() => {
     if (documentId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       loadDocumentFromApi(documentId)
     }
-  }, [documentId])
-
-  const loadDocumentFromApi = async (id: string) => {
-    try {
-      const doc = await documentsApi.get(id)
-      if (doc) {
-        setDocumentName(doc.name)
-        loadDocument({
-          cells: doc.cells,
-          columnWidths: doc.columnWidths,
-          rowHeights: doc.rowHeights,
-          rowCount: doc.rowCount,
-          colCount: doc.colCount,
-        })
-      }
-    } catch (error) {
-      console.error('Failed to load document:', error)
-    }
-  }
+  }, [documentId, loadDocumentFromApi])
 
   const handleCellMouseDown = useCallback(
     (pos: Position, e: React.MouseEvent) => {

@@ -3,29 +3,29 @@ import { documentsApi } from '@/api/documents'
 import { DocumentPreview, Document } from '@/types/documents'
 import { SpreadsheetStore } from '@/types'
 import { downloadJSON, downloadCSV } from '@/utils/exportImport'
-import { exportToCSV, importCSV as parseCSV } from '@/utils/csv'
+import { importCSV as parseCSV } from '@/utils/csv'
 
 export function useDocuments() {
   const [documents, setDocuments] = useState<DocumentPreview[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const loadDocuments = useCallback(async () => {
-    setLoading(true)
-    try {
-      const docs = await documentsApi.list()
-      setDocuments(docs)
-      setError(null)
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load documents')
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
+  // Загрузка списка документов
   useEffect(() => {
-    loadDocuments()
-  }, [loadDocuments])
+    const fetchDocuments = async () => {
+      setLoading(true)
+      try {
+        const docs = await documentsApi.list()
+        setDocuments(docs)
+        setError(null)
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Failed to load documents')
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchDocuments()
+  }, [])
 
   const createDocument = useCallback(
     async (name: string, rows: number, cols: number) => {
@@ -35,53 +35,46 @@ export function useDocuments() {
           rowCount: rows,
           colCount: cols,
         })
-        await loadDocuments()
+        const docs = await documentsApi.list()
+        setDocuments(docs)
         return doc
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Failed to create document')
         return null
       }
     },
-    [loadDocuments]
+    []
   )
 
-  const renameDocument = useCallback(
-    async (id: string, newName: string) => {
-      try {
-        await documentsApi.update(id, { name: newName })
-        await loadDocuments()
-      } catch (e) {
-        setError(e instanceof Error ? e.message : 'Failed to rename document')
-      }
-    },
-    [loadDocuments]
-  )
+  const renameDocument = useCallback(async (id: string, newName: string) => {
+    try {
+      await documentsApi.update(id, { name: newName })
+      const docs = await documentsApi.list()
+      setDocuments(docs)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to rename document')
+    }
+  }, [])
 
-  const deleteDocument = useCallback(
-    async (id: string) => {
-      try {
-        await documentsApi.delete(id)
-        await loadDocuments()
-      } catch (e) {
-        setError(e instanceof Error ? e.message : 'Failed to delete document')
-      }
-    },
-    [loadDocuments]
-  )
+  const deleteDocument = useCallback(async (id: string) => {
+    try {
+      await documentsApi.delete(id)
+      const docs = await documentsApi.list()
+      setDocuments(docs)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to delete document')
+    }
+  }, [])
 
-  const duplicateDocument = useCallback(
-    async (id: string, newName: string) => {
-      try {
-        await documentsApi.duplicate(id, newName)
-        await loadDocuments()
-      } catch (e) {
-        setError(
-          e instanceof Error ? e.message : 'Failed to duplicate document'
-        )
-      }
-    },
-    [loadDocuments]
-  )
+  const duplicateDocument = useCallback(async (id: string, newName: string) => {
+    try {
+      await documentsApi.duplicate(id, newName)
+      const docs = await documentsApi.list()
+      setDocuments(docs)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to duplicate document')
+    }
+  }, [])
 
   const loadDocument = useCallback(
     async (id: string): Promise<Document | null> => {
@@ -132,23 +125,23 @@ export function useDocuments() {
           colCount: Math.max(colCount, 26),
         })
 
-        // Обновляем ячейки
         await documentsApi.update(doc.id, { cells })
-        await loadDocuments()
+        const docs = await documentsApi.list()
+        setDocuments(docs)
         return doc
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Failed to import document')
         return null
       }
     },
-    [loadDocuments]
+    []
   )
 
   return {
     documents,
     loading,
     error,
-    loadDocuments,
+    loadDocuments: () => {},
     createDocument,
     renameDocument,
     deleteDocument,

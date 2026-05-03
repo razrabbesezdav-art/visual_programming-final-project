@@ -24,7 +24,7 @@ export function useAutoSave(
     setSaveStatus((prev) => ({ ...prev, status: 'saving' }))
 
     try {
-      const changedFields: Record<string, any> = {}
+      const changedFields: Record<string, unknown> = {}
 
       // Сравниваем с последним сохраненным состоянием
       if (lastSavedStore.current) {
@@ -32,7 +32,7 @@ export function useAutoSave(
         const saved = lastSavedStore.current.cells
 
         // Отправляем только измененные ячейки
-        const changedCells: Record<string, any> = {}
+        const changedCells: Record<string, unknown> = {}
         for (const key in current) {
           if (JSON.stringify(current[key]) !== JSON.stringify(saved[key])) {
             changedCells[key] = current[key]
@@ -65,7 +65,6 @@ export function useAutoSave(
     }
   }, [documentId, store])
 
-  // Дебаунс сохранение
   const scheduleSave = useCallback(() => {
     hasChanges.current = true
 
@@ -83,7 +82,6 @@ export function useAutoSave(
     }, DEBOUNCE_MS)
   }, [save])
 
-  // Ручное сохранение
   const manualSave = useCallback(async () => {
     if (debounceTimer.current) {
       clearTimeout(debounceTimer.current)
@@ -91,7 +89,6 @@ export function useAutoSave(
     await save()
   }, [save])
 
-  // Предупреждение при закрытии
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (hasChanges.current) {
@@ -101,7 +98,6 @@ export function useAutoSave(
       }
     }
 
-    // Горячие клавиши
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         e.preventDefault()

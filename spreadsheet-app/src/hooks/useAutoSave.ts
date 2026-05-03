@@ -14,7 +14,7 @@ export function useAutoSave(
     lastSaved: null,
   })
 
-  const debounceTimer = useRef<NodeJS.Timeout | null>(null)
+  const debounceTimer = useRef<number | null>(null)
   const hasChanges = useRef(false)
   const lastSavedStore = useRef<SpreadsheetStore | null>(null)
 

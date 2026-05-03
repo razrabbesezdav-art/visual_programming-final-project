@@ -19,7 +19,7 @@ export function exportToJSON(store: SpreadsheetStore): string {
 export function importFromJSON(jsonContent: string): SpreadsheetStore | null {
   try {
     const data = JSON.parse(jsonContent)
-    
+
     if (!data.spreadsheet) {
       throw new Error('Invalid JSON format')
     }

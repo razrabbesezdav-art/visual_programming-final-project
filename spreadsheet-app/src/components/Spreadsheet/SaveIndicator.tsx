@@ -13,7 +13,11 @@ export const SaveIndicator: React.FC<SaveIndicatorProps> = ({ status }) => {
       case 'saving':
         return { icon: '⏳', text: 'Сохранение...', className: 'saving' }
       case 'error':
-        return { icon: '❌', text: status.error || 'Ошибка', className: 'error' }
+        return {
+          icon: '❌',
+          text: status.error || 'Ошибка',
+          className: 'error',
+        }
       case 'unsaved':
         return { icon: '📝', text: 'Не сохранено', className: 'unsaved' }
     }

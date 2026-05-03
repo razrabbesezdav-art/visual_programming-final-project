@@ -5,7 +5,10 @@ interface ExportImportMenuProps {
   onClose: () => void
 }
 
-export const ExportImportMenu: React.FC<ExportImportMenuProps> = ({ onImport, onClose }) => {
+export const ExportImportMenu: React.FC<ExportImportMenuProps> = ({
+  onImport,
+  onClose,
+}) => {
   const [name, setName] = useState('')
   const [csvContent, setCsvContent] = useState('')
   const [dragOver, setDragOver] = useState(false)
@@ -38,7 +41,10 @@ export const ExportImportMenu: React.FC<ExportImportMenuProps> = ({ onImport, on
         <h2>Импорт CSV</h2>
         <div
           className={`drop-zone ${dragOver ? 'drag-over' : ''}`}
-          onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
+          onDragOver={(e) => {
+            e.preventDefault()
+            setDragOver(true)
+          }}
           onDragLeave={() => setDragOver(false)}
           onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
@@ -59,10 +65,7 @@ export const ExportImportMenu: React.FC<ExportImportMenuProps> = ({ onImport, on
         {csvContent && (
           <div className="form-group">
             <label>Название документа</label>
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
+            <input value={name} onChange={(e) => setName(e.target.value)} />
           </div>
         )}
 

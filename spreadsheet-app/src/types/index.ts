@@ -27,13 +27,16 @@ export interface SpreadsheetStore {
 
 export type Action =
   | { type: 'UPDATE_CELL'; position: Position; value: string }
-  | { type: 'LOAD_DOCUMENT'; payload: {
-      cells: Record<string, CellData>
-      columnWidths: Record<number, number>
-      rowHeights: Record<number, number>
-      rowCount: number
-      colCount: number
-    }}
+  | {
+      type: 'LOAD_DOCUMENT'
+      payload: {
+        cells: Record<string, CellData>
+        columnWidths: Record<number, number>
+        rowHeights: Record<number, number>
+        rowCount: number
+        colCount: number
+      }
+    }
   | { type: 'SET_COLUMN_WIDTH'; col: number; width: number }
   | { type: 'SET_ROW_HEIGHT'; row: number; height: number }
   | { type: 'ADD_ROW_ABOVE'; row: number }

@@ -17,7 +17,10 @@ interface SpreadsheetProps {
   onBack: () => void
 }
 
-export const Spreadsheet: React.FC<SpreadsheetProps> = ({ documentId, onBack }) => {
+export const Spreadsheet: React.FC<SpreadsheetProps> = ({
+  documentId,
+  onBack,
+}) => {
   const {
     store,
     updateCell,
@@ -39,7 +42,10 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({ documentId, onBack }) 
   const [scrollLeft, setScrollLeft] = useState(0)
   const [documentName, setDocumentName] = useState('')
 
-  const { saveStatus, scheduleSave, manualSave } = useAutoSave(documentId, store)
+  const { saveStatus, scheduleSave, manualSave } = useAutoSave(
+    documentId,
+    store
+  )
 
   const {
     menu: contextMenu,
@@ -127,7 +133,9 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({ documentId, onBack }) 
   return (
     <div className="spreadsheet">
       <div className="spreadsheet-header">
-        <button onClick={onBack} className="btn-back">← Назад</button>
+        <button onClick={onBack} className="btn-back">
+          ← Назад
+        </button>
         <span className="document-title">{documentName}</span>
         <FormulaBar
           ref={formulaBarRef}

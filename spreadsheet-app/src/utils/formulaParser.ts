@@ -7,32 +7,36 @@ type CellGetter = (cellId: string) => CellData | undefined
 function getNumericValue(cellId: string, getCell: CellGetter): number | null {
   const cell = getCell(cellId)
   if (!cell) return null
-  
+
   // Если ячейка уже содержит число
   if (cell.type === 'number') {
     return Number(cell.computedValue)
   }
-  
+
   // Если ячейка содержит строку, которая может быть числом
   if (cell.type === 'string') {
     const num = Number(cell.computedValue)
     if (!isNaN(num)) return num
   }
-  
+
   // Если ячейка содержит формулу, используем её вычисленное значение
   if (cell.type === 'formula') {
-    if (cell.computedValue === '#ERROR' || cell.computedValue === null || cell.computedValue === undefined) {
+    if (
+      cell.computedValue === '#ERROR' ||
+      cell.computedValue === null ||
+      cell.computedValue === undefined
+    ) {
       return null
     }
     const num = Number(cell.computedValue)
     if (!isNaN(num)) return num
   }
-  
+
   // Если ячейка содержит boolean
   if (cell.type === 'boolean') {
     return cell.computedValue === true ? 1 : 0
   }
-  
+
   return null
 }
 
@@ -42,15 +46,15 @@ function parseArgument(
   getCell: CellGetter
 ): number | number[] | null {
   arg = arg.trim()
-  
+
   // Сначала проверяем диапазоны, потом отдельные значения
-  
+
   // 1. Проверяем диапазон ячеек (A1:B5)
   const cellRangeMatch = arg.match(/^([A-Z]+\d+):([A-Z]+\d+)$/i)
   if (cellRangeMatch) {
     return getRangeValues(cellRangeMatch[1], cellRangeMatch[2], getCell)
   }
-  
+
   // 2. Проверяем диапазон строк (1:5) - ДОЛЖНО БЫТЬ ПЕРЕД ПРОВЕРКОЙ КОНСТАНТ
   const rowRangeMatch = arg.match(/^(\d+):(\d+)$/)
   if (rowRangeMatch) {
@@ -58,7 +62,7 @@ function parseArgument(
     const endRow = parseInt(rowRangeMatch[2]) - 1
     return getRowRangeValues(startRow, endRow, getCell)
   }
-  
+
   // 3. Проверяем диапазон колонок (A:C)
   const colRangeMatch = arg.match(/^([A-Z]+):([A-Z]+)$/i)
   if (colRangeMatch) {
@@ -66,17 +70,17 @@ function parseArgument(
     const endCol = columnLetterToIndex(colRangeMatch[2])
     return getColRangeValues(startCol, endCol, getCell)
   }
-  
+
   // 4. Проверяем ссылку на ячейку (A1, B2, etc.)
   if (/^[A-Z]+\d+$/i.test(arg)) {
     return getNumericValue(arg, getCell)
   }
-  
+
   // 5. Проверяем числовую константу (только если это НЕ диапазон)
   if (/^-?\d+(\.\d+)?$/.test(arg)) {
     return parseFloat(arg)
   }
-  
+
   return null
 }
 
@@ -88,12 +92,12 @@ function getRangeValues(
 ): number[] | null {
   const start = parseCellId(startCell)
   const end = parseCellId(endCell)
-  
+
   const minRow = Math.min(start.row, end.row)
   const maxRow = Math.max(start.row, end.row)
   const minCol = Math.min(start.col, end.col)
   const maxCol = Math.max(start.col, end.col)
-  
+
   const values: number[] = []
   for (let r = minRow; r <= maxRow; r++) {
     for (let c = minCol; c <= maxCol; c++) {
@@ -103,7 +107,7 @@ function getRangeValues(
       }
     }
   }
-  
+
   return values.length > 0 ? values : null
 }
 
@@ -115,7 +119,7 @@ function getRowRangeValues(
 ): number[] | null {
   const minRow = Math.min(startRow, endRow)
   const maxRow = Math.max(startRow, endRow)
-  
+
   const values: number[] = []
   // Проверяем все возможные колонки (A-ZZ примерно 702 колонки)
   for (let r = minRow; r <= maxRow; r++) {
@@ -126,7 +130,7 @@ function getRowRangeValues(
       }
     }
   }
-  
+
   return values.length > 0 ? values : null
 }
 
@@ -138,7 +142,7 @@ function getColRangeValues(
 ): number[] | null {
   const minCol = Math.min(startCol, endCol)
   const maxCol = Math.max(startCol, endCol)
-  
+
   const values: number[] = []
   // Проверяем много строк
   for (let r = 0; r < 100; r++) {
@@ -149,7 +153,7 @@ function getColRangeValues(
       }
     }
   }
-  
+
   return values.length > 0 ? values : null
 }
 
@@ -171,62 +175,62 @@ export function evaluateFormula(
   if (!formula.startsWith('=')) {
     return formula
   }
-  
+
   const expr = formula.substring(1).trim()
-  
+
   // Обработка функций SUM, AVERAGE, MIN, MAX, COUNT
   const funcMatch = expr.match(/^(SUM|AVERAGE|MIN|MAX|COUNT)\((.+)\)$/i)
   if (funcMatch) {
     const funcName = funcMatch[1].toUpperCase()
     const argsString = funcMatch[2]
-    
+
     // Разбиваем строку аргументов
     const args = splitArguments(argsString)
-    
+
     // Собираем все значения из аргументов
     const allValues: number[] = []
-    
+
     for (const arg of args) {
       const result = parseArgument(arg.trim(), getCell)
-      
+
       if (result === null) {
         console.warn(`Cannot parse argument: "${arg}"`)
         return '#ERROR' // Возвращаем ошибку если аргумент не распознан
       }
-      
+
       if (Array.isArray(result)) {
         allValues.push(...result)
       } else {
         allValues.push(result)
       }
     }
-    
+
     if (allValues.length === 0) {
       return '#ERROR'
     }
-    
+
     // Выполняем функцию
     switch (funcName) {
       case 'SUM':
         return allValues.reduce((sum, val) => sum + val, 0)
-        
+
       case 'AVERAGE':
         return allValues.reduce((sum, val) => sum + val, 0) / allValues.length
-        
+
       case 'MIN':
         return Math.min(...allValues)
-        
+
       case 'MAX':
         return Math.max(...allValues)
-        
+
       case 'COUNT':
         return allValues.length
-        
+
       default:
         return '#ERROR'
     }
   }
-  
+
   // Обработка арифметических выражений
   try {
     // Заменяем ссылки на ячейки их числовыми значениями
@@ -241,7 +245,7 @@ export function evaluateFormula(
         evalExpr = evalExpr.replace(ref, val.toString())
       }
     }
-    
+
     // Проверяем, что выражение содержит только числа и операторы
     if (/^[\d\s+\-*/().]+$/.test(evalExpr)) {
       const result = new Function(`return (${evalExpr})`)()
@@ -252,7 +256,7 @@ export function evaluateFormula(
   } catch (e) {
     return '#ERROR'
   }
-  
+
   // Если это ссылка на одну ячейку
   const singleRef = expr.match(/^([A-Z]+\d+)$/i)
   if (singleRef) {
@@ -261,19 +265,22 @@ export function evaluateFormula(
       return cell.computedValue
     }
   }
-  
+
   // Если это просто число
   if (/^-?\d+(\.\d+)?$/.test(expr)) {
     return parseFloat(expr)
   }
-  
+
   return '#ERROR'
 }
 
 // Разбивает строку аргументов, учитывая возможные пробелы
 function splitArguments(argsString: string): string[] {
   // Просто разбиваем по запятым, так как вложенных функций пока нет
-  return argsString.split(',').map(arg => arg.trim()).filter(arg => arg !== '')
+  return argsString
+    .split(',')
+    .map((arg) => arg.trim())
+    .filter((arg) => arg !== '')
 }
 
 // Определение типа значения

@@ -5,7 +5,9 @@ import { CreateDocumentModal } from './CreateDocumentModal'
 import { ExportImportMenu } from '../ExportImport/ExportImportMenu'
 import './Dashboard.css'
 
-export const Dashboard: React.FC<{ onOpenDocument: (id: string) => void }> = ({ onOpenDocument }) => {
+export const Dashboard: React.FC<{ onOpenDocument: (id: string) => void }> = ({
+  onOpenDocument,
+}) => {
   const {
     documents,
     loading,
@@ -40,22 +42,27 @@ export const Dashboard: React.FC<{ onOpenDocument: (id: string) => void }> = ({ 
   if (error) return <div className="dashboard-error">Ошибка: {error}</div>
 
   return (
-    
     <div className="dashboard">
-    <h1>Мои документы</h1>
+      <h1>Мои документы</h1>
       <div className="dashboard-header">
         <div className="dashboard-actions">
-          <button onClick={() => setShowCreateModal(true)} className="btn btn-primary">
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="btn btn-primary"
+          >
             + Новый документ
           </button>
-          <button onClick={() => setShowImport(true)} className="btn btn-secondary">
+          <button
+            onClick={() => setShowImport(true)}
+            className="btn btn-secondary"
+          >
             Импорт CSV
           </button>
         </div>
       </div>
 
       <div className="documents-grid">
-        {documents.map(doc => (
+        {documents.map((doc) => (
           <DocumentCard
             key={doc.id}
             document={doc}
@@ -68,7 +75,9 @@ export const Dashboard: React.FC<{ onOpenDocument: (id: string) => void }> = ({ 
         {documents.length === 0 && (
           <div className="no-documents">
             <p>У вас пока нет документов</p>
-            <button onClick={() => setShowCreateModal(true)}>Создать первый документ</button>
+            <button onClick={() => setShowCreateModal(true)}>
+              Создать первый документ
+            </button>
           </div>
         )}
       </div>

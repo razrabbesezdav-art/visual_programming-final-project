@@ -65,16 +65,31 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
       </div>
 
       <div className="document-actions">
-        <button onClick={onOpen} title="Открыть">📂</button>
-        <button onClick={() => setIsRenaming(true)} title="Переименовать">✏️</button>
-        <button onClick={onDuplicate} title="Дублировать">📋</button>
-        <button onClick={() => setShowDeleteConfirm(true)} title="Удалить">🗑️</button>
+        <button onClick={onOpen} title="Открыть">
+          📂
+        </button>
+        <button onClick={() => setIsRenaming(true)} title="Переименовать">
+          ✏️
+        </button>
+        <button onClick={onDuplicate} title="Дублировать">
+          📋
+        </button>
+        <button onClick={() => setShowDeleteConfirm(true)} title="Удалить">
+          🗑️
+        </button>
       </div>
 
       {showDeleteConfirm && (
         <div className="confirm-dialog">
           <p>Удалить "{document.name}"?</p>
-          <button onClick={() => { onDelete(); setShowDeleteConfirm(false) }}>Да</button>
+          <button
+            onClick={() => {
+              onDelete()
+              setShowDeleteConfirm(false)
+            }}
+          >
+            Да
+          </button>
           <button onClick={() => setShowDeleteConfirm(false)}>Нет</button>
         </div>
       )}

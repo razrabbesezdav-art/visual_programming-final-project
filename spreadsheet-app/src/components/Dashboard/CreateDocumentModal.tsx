@@ -5,7 +5,10 @@ interface CreateDocumentModalProps {
   onClose: () => void
 }
 
-export const CreateDocumentModal: React.FC<CreateDocumentModalProps> = ({ onCreate, onClose }) => {
+export const CreateDocumentModal: React.FC<CreateDocumentModalProps> = ({
+  onCreate,
+  onClose,
+}) => {
   const [name, setName] = useState('Новая таблица')
   const [rows, setRows] = useState(100)
   const [cols, setCols] = useState(26)
@@ -36,7 +39,9 @@ export const CreateDocumentModal: React.FC<CreateDocumentModalProps> = ({ onCrea
               <input
                 type="number"
                 value={rows}
-                onChange={(e) => setRows(Math.max(1, parseInt(e.target.value) || 100))}
+                onChange={(e) =>
+                  setRows(Math.max(1, parseInt(e.target.value) || 100))
+                }
                 min={1}
                 max={10000}
               />
@@ -46,14 +51,18 @@ export const CreateDocumentModal: React.FC<CreateDocumentModalProps> = ({ onCrea
               <input
                 type="number"
                 value={cols}
-                onChange={(e) => setCols(Math.max(1, parseInt(e.target.value) || 26))}
+                onChange={(e) =>
+                  setCols(Math.max(1, parseInt(e.target.value) || 26))
+                }
                 min={1}
                 max={702} // до ZZ
               />
             </div>
           </div>
           <div className="modal-actions">
-            <button type="button" onClick={onClose}>Отмена</button>
+            <button type="button" onClick={onClose}>
+              Отмена
+            </button>
             <button type="submit">Создать</button>
           </div>
         </form>

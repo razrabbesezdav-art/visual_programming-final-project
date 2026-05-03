@@ -5,7 +5,10 @@ import { SpreadsheetStore } from '@/types'
 
 const DEBOUNCE_MS = 500
 
-export function useAutoSave(documentId: string | null, store: SpreadsheetStore) {
+export function useAutoSave(
+  documentId: string | null,
+  store: SpreadsheetStore
+) {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>({
     status: 'saved',
     lastSaved: null,
@@ -18,7 +21,7 @@ export function useAutoSave(documentId: string | null, store: SpreadsheetStore) 
   const save = useCallback(async () => {
     if (!documentId) return
 
-    setSaveStatus(prev => ({ ...prev, status: 'saving' }))
+    setSaveStatus((prev) => ({ ...prev, status: 'saving' }))
 
     try {
       const changedFields: Record<string, any> = {}
@@ -70,7 +73,7 @@ export function useAutoSave(documentId: string | null, store: SpreadsheetStore) 
       clearTimeout(debounceTimer.current)
     }
 
-    setSaveStatus(prev => ({
+    setSaveStatus((prev) => ({
       ...prev,
       status: 'unsaved' as const,
     }))

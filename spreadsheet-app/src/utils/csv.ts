@@ -9,7 +9,9 @@ export function exportToCSV(store: SpreadsheetStore): string {
     for (let c = 0; c < store.colCount; c++) {
       const cellId = toCellId(r, c)
       const cell = store.cells[cellId]
-      const value = cell ? escapeCSVField(cell.displayValue || cell.rawValue || '') : ''
+      const value = cell
+        ? escapeCSVField(cell.displayValue || cell.rawValue || '')
+        : ''
       line.push(value)
     }
     // Убираем пустые ячейки справа (оптимизация)
@@ -114,10 +116,14 @@ function parseCSVLines(csv: string): string[][] {
     lines.push(currentLine)
   }
 
-  return lines.filter(line => line.some(field => field !== ''))
+  return lines.filter((line) => line.some((field) => field !== ''))
 }
 
-export function downloadFile(content: string, filename: string, mimeType: string) {
+export function downloadFile(
+  content: string,
+  filename: string,
+  mimeType: string
+) {
   const blob = new Blob([content], { type: mimeType })
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')

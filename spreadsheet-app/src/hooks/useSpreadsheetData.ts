@@ -43,22 +43,22 @@ function loadFromDocument(doc: {
   colCount: number
 }): SpreadsheetStore {
   const store = initializeStore(doc.rowCount, doc.colCount)
-  
+
   // Восстанавливаем данные ячеек
   for (const cellId in doc.cells) {
     store.cells[cellId] = doc.cells[cellId]
   }
-  
+
   // Восстанавливаем ширины колонок
   for (const col in doc.columnWidths) {
     store.columnWidths[Number(col)] = doc.columnWidths[col]
   }
-  
+
   // Восстанавливаем высоты строк
   for (const row in doc.rowHeights) {
     store.rowHeights[Number(row)] = doc.rowHeights[row]
   }
-  
+
   return store
 }
 
@@ -66,39 +66,41 @@ function loadFromDocument(doc: {
 function recalcAll(state: SpreadsheetStore): SpreadsheetStore {
   console.log('=== Starting recalculation ===')
   const newCells = { ...state.cells }
-  
+
   const getCell = (cellId: string): CellData | undefined => {
     if (!newCells[cellId]) return undefined
-    
+
     const cell = newCells[cellId]
-    
+
     if (cell.type === 'formula') {
       const result = evaluateFormula(cell.rawValue, getCell)
       console.log(`Recalculating ${cellId}: ${cell.rawValue} = ${result}`)
-      
+
       const updatedCell: CellData = {
         ...cell,
         computedValue: result,
-        displayValue: result !== null && result !== undefined ? String(result) : '',
+        displayValue:
+          result !== null && result !== undefined ? String(result) : '',
       }
-      
+
       newCells[cellId] = updatedCell
       return updatedCell
     }
-    
+
     return cell
   }
-  
+
   for (const id in newCells) {
     const cell = newCells[id]
     if (cell.type === 'formula') {
       const result = evaluateFormula(cell.rawValue, getCell)
       console.log(`Cell ${id}: ${cell.rawValue} = ${result}`)
-      
+
       newCells[id] = {
         ...cell,
         computedValue: result,
-        displayValue: result !== null && result !== undefined ? String(result) : '',
+        displayValue:
+          result !== null && result !== undefined ? String(result) : '',
       }
     } else if (cell.type === 'number') {
       newCells[id] = {
@@ -120,7 +122,7 @@ function recalcAll(state: SpreadsheetStore): SpreadsheetStore {
       }
     }
   }
-  
+
   console.log('=== Recalculation complete ===')
   return { ...state, cells: newCells }
 }
@@ -130,16 +132,18 @@ function reducer(state: SpreadsheetStore, action: Action): SpreadsheetStore {
     case 'UPDATE_CELL': {
       const id = toCellId(action.position.row, action.position.col)
       const type = detectType(action.value)
-      
-      console.log(`Updating cell ${id} with value: "${action.value}", type: ${type}`)
-      
+
+      console.log(
+        `Updating cell ${id} with value: "${action.value}", type: ${type}`
+      )
+
       const newCell: CellData = {
         rawValue: action.value,
         computedValue: null,
         displayValue: action.value,
         type,
       }
-      
+
       const newState: SpreadsheetStore = {
         ...state,
         cells: {
@@ -147,10 +151,10 @@ function reducer(state: SpreadsheetStore, action: Action): SpreadsheetStore {
           [id]: newCell,
         },
       }
-      
+
       return recalcAll(newState)
     }
-    
+
     // НОВОЕ: Загрузка документа
     case 'LOAD_DOCUMENT': {
       return loadFromDocument(action.payload)
@@ -164,7 +168,7 @@ function reducer(state: SpreadsheetStore, action: Action): SpreadsheetStore {
           [action.col]: action.width,
         },
       }
-      
+
     case 'SET_ROW_HEIGHT':
       return {
         ...state,
@@ -300,15 +304,18 @@ export function useSpreadsheetData(
   }, [])
 
   // НОВОЕ: Загрузка документа
-  const loadDocument = useCallback((doc: {
-    cells: Record<string, CellData>
-    columnWidths: Record<number, number>
-    rowHeights: Record<number, number>
-    rowCount: number
-    colCount: number
-  }) => {
-    dispatch({ type: 'LOAD_DOCUMENT', payload: doc })
-  }, [])
+  const loadDocument = useCallback(
+    (doc: {
+      cells: Record<string, CellData>
+      columnWidths: Record<number, number>
+      rowHeights: Record<number, number>
+      rowCount: number
+      colCount: number
+    }) => {
+      dispatch({ type: 'LOAD_DOCUMENT', payload: doc })
+    },
+    []
+  )
 
   const setColumnWidth = useCallback((col: number, width: number) => {
     dispatch({ type: 'SET_COLUMN_WIDTH', col, width })

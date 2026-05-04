@@ -278,7 +278,7 @@ export function evaluateFormula(
 function splitArguments(argsString: string): string[] {
   // Просто разбиваем по запятым, так как вложенных функций пока нет
   return argsString
-    .split(',')
+    .split(':')
     .map((arg) => arg.trim())
     .filter((arg) => arg !== '')
 }

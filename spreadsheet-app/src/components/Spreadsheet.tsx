@@ -2,7 +2,7 @@ import React, { useState, useCallback, useRef, useEffect } from 'react'
 import { useSpreadsheetData } from '@/hooks/useSpreadsheetData'
 import { useAutoSave } from '@/hooks/useAutoSave'
 import { useContextMenu } from '@/hooks/useContextMenu'
-import { documentsApi } from '@/api/documents'
+import { documentsApi, downloadFile } from '@/api/documents'
 import { Grid } from '@/components/Grid'
 import { FormulaBar } from '@/components/FormulaBar'
 import { ColumnHeaders } from '@/components/ColumnHeaders'
@@ -17,10 +17,7 @@ interface SpreadsheetProps {
   onBack: () => void
 }
 
-export const Spreadsheet: React.FC<SpreadsheetProps> = ({
-  documentId,
-  onBack,
-}) => {
+export const Spreadsheet: React.FC<SpreadsheetProps> = ({ documentId, onBack }) => {
   const {
     store,
     updateCell,
@@ -41,10 +38,9 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
   const [scrollTop, setScrollTop] = useState(0)
   const [scrollLeft, setScrollLeft] = useState(0)
   const [documentName, setDocumentName] = useState('')
-  const { saveStatus, scheduleSave, manualSave } = useAutoSave(
-    documentId,
-    store
-  )
+  const [showExportMenu, setShowExportMenu] = useState(false)
+
+  const { saveStatus, scheduleSave, manualSave } = useAutoSave(documentId, store)
 
   const {
     menu: contextMenu,
@@ -55,33 +51,52 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
 
   const formulaBarRef = useRef<HTMLInputElement>(null)
 
-  const loadDocumentFromApi = useCallback(
-    async (id: string) => {
-      try {
-        const doc = await documentsApi.get(id)
-        if (doc) {
-          setDocumentName(doc.name)
-          loadDocument({
-            cells: doc.cells,
-            columnWidths: doc.columnWidths,
-            rowHeights: doc.rowHeights,
-            rowCount: doc.rowCount,
-            colCount: doc.colCount,
-          })
-        }
-      } catch (error) {
-        console.error('Failed to load document:', error)
-      }
-    },
-    [loadDocument]
-  )
-
   useEffect(() => {
     if (documentId) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       loadDocumentFromApi(documentId)
     }
-  }, [documentId, loadDocumentFromApi])
+  }, [documentId])
+
+  const loadDocumentFromApi = async (id: string) => {
+    try {
+      const doc = await documentsApi.get(id)
+      if (doc) {
+        setDocumentName(doc.name)
+        loadDocument({
+          cells: doc.cells,
+          columnWidths: doc.columnWidths,
+          rowHeights: doc.rowHeights,
+          rowCount: doc.rowCount,
+          colCount: doc.colCount,
+        })
+      }
+    } catch (error) {
+      console.error('Failed to load document:', error)
+    }
+  }
+
+  // Функции экспорта
+  const handleExportCSV = async () => {
+    if (!documentId) return
+    try {
+      const { content, filename } = await documentsApi.export(documentId, 'csv')
+      downloadFile(content, filename, 'text/csv')
+      setShowExportMenu(false)
+    } catch (error) {
+      console.error('Export failed:', error)
+    }
+  }
+
+  const handleExportJSON = async () => {
+    if (!documentId) return
+    try {
+      const { content, filename } = await documentsApi.export(documentId, 'json')
+      downloadFile(content, filename, 'application/json')
+      setShowExportMenu(false)
+    } catch (error) {
+      console.error('Export failed:', error)
+    }
+  }
 
   const handleCellMouseDown = useCallback(
     (pos: Position, e: React.MouseEvent) => {
@@ -135,9 +150,7 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
   return (
     <div className="spreadsheet">
       <div className="spreadsheet-header">
-        <button onClick={onBack} className="btn-back">
-          ← Назад
-        </button>
+        <button onClick={onBack} className="btn-back">← Назад</button>
         <span className="document-title">{documentName}</span>
         <FormulaBar
           ref={formulaBarRef}
@@ -145,9 +158,30 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
           onChange={handleFormulaChange}
         />
         <SaveIndicator status={saveStatus} />
-        <button onClick={manualSave} title="Сохранить (Ctrl+S)">
+        <button onClick={manualSave} title="Сохранить (Ctrl+S)" className="btn-icon">
           💾
         </button>
+        
+        {/* Кнопка экспорта */}
+        <div className="export-dropdown">
+          <button 
+            onClick={() => setShowExportMenu(!showExportMenu)} 
+            className="btn-icon" 
+            title="Экспорт"
+          >
+            📥
+          </button>
+          {showExportMenu && (
+            <div className="export-menu">
+              <button onClick={handleExportCSV} className="export-menu-item">
+                📊 Экспорт в CSV
+              </button>
+              <button onClick={handleExportJSON} className="export-menu-item">
+                📋 Экспорт в JSON
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="spreadsheet-body">

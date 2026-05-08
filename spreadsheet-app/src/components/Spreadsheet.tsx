@@ -57,11 +57,12 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
 
   const formulaBarRef = useRef<HTMLInputElement>(null)
 
-  // Функция загрузки документа
-  const loadDocumentFromApi = useCallback(
-    async (id: string) => {
+  useEffect(() => {
+    if (!documentId) return
+
+    const loadDocumentFromApi = async () => {
       try {
-        const doc = await documentsApi.get(id)
+        const doc = await documentsApi.get(documentId)
         if (doc) {
           setDocumentName(doc.name)
           loadDocument({
@@ -75,15 +76,10 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
       } catch (error) {
         console.error('Failed to load document:', error)
       }
-    },
-    [loadDocument]
-  )
-
-  useEffect(() => {
-    if (documentId) {
-      loadDocumentFromApi(documentId)
     }
-  }, [documentId, loadDocumentFromApi])
+
+    loadDocumentFromApi()
+  }, [documentId, loadDocument])
 
   // Функции экспорта
   const handleExportCSV = useCallback(async () => {

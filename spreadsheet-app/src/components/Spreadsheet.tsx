@@ -17,7 +17,10 @@ interface SpreadsheetProps {
   onBack: () => void
 }
 
-export const Spreadsheet: React.FC<SpreadsheetProps> = ({ documentId, onBack }) => {
+export const Spreadsheet: React.FC<SpreadsheetProps> = ({
+  documentId,
+  onBack,
+}) => {
   const {
     store,
     updateCell,
@@ -40,7 +43,10 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({ documentId, onBack }) 
   const [documentName, setDocumentName] = useState('')
   const [showExportMenu, setShowExportMenu] = useState(false)
 
-  const { saveStatus, scheduleSave, manualSave } = useAutoSave(documentId, store)
+  const { saveStatus, scheduleSave, manualSave } = useAutoSave(
+    documentId,
+    store
+  )
 
   const {
     menu: contextMenu,
@@ -90,7 +96,10 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({ documentId, onBack }) 
   const handleExportJSON = async () => {
     if (!documentId) return
     try {
-      const { content, filename } = await documentsApi.export(documentId, 'json')
+      const { content, filename } = await documentsApi.export(
+        documentId,
+        'json'
+      )
       downloadFile(content, filename, 'application/json')
       setShowExportMenu(false)
     } catch (error) {
@@ -150,7 +159,9 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({ documentId, onBack }) 
   return (
     <div className="spreadsheet">
       <div className="spreadsheet-header">
-        <button onClick={onBack} className="btn-back">← Назад</button>
+        <button onClick={onBack} className="btn-back">
+          ← Назад
+        </button>
         <span className="document-title">{documentName}</span>
         <FormulaBar
           ref={formulaBarRef}
@@ -158,15 +169,19 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({ documentId, onBack }) 
           onChange={handleFormulaChange}
         />
         <SaveIndicator status={saveStatus} />
-        <button onClick={manualSave} title="Сохранить (Ctrl+S)" className="btn-icon">
+        <button
+          onClick={manualSave}
+          title="Сохранить (Ctrl+S)"
+          className="btn-icon"
+        >
           💾
         </button>
-        
+
         {/* Кнопка экспорта */}
         <div className="export-dropdown">
-          <button 
-            onClick={() => setShowExportMenu(!showExportMenu)} 
-            className="btn-icon" 
+          <button
+            onClick={() => setShowExportMenu(!showExportMenu)}
+            className="btn-icon"
             title="Экспорт"
           >
             📥

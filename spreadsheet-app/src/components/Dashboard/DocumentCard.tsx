@@ -32,7 +32,10 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
   const handleExportCSV = async (e: React.MouseEvent) => {
     e.stopPropagation()
     try {
-      const { content, filename } = await documentsApi.export(document.id, 'csv')
+      const { content, filename } = await documentsApi.export(
+        document.id,
+        'csv'
+      )
       downloadFile(content, filename, 'text/csv')
       setShowExportMenu(false)
     } catch (error) {
@@ -43,7 +46,10 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
   const handleExportJSON = async (e: React.MouseEvent) => {
     e.stopPropagation()
     try {
-      const { content, filename } = await documentsApi.export(document.id, 'json')
+      const { content, filename } = await documentsApi.export(
+        document.id,
+        'json'
+      )
       downloadFile(content, filename, 'application/json')
       setShowExportMenu(false)
     } catch (error) {
@@ -90,12 +96,18 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
       </div>
 
       <div className="document-actions">
-        <button onClick={onOpen} title="Открыть">📂</button>
-        <button onClick={() => setIsRenaming(true)} title="Переименовать">✏️</button>
-        <button onClick={onDuplicate} title="Дублировать">📋</button>
-        
+        <button onClick={onOpen} title="Открыть">
+          📂
+        </button>
+        <button onClick={() => setIsRenaming(true)} title="Переименовать">
+          ✏️
+        </button>
+        <button onClick={onDuplicate} title="Дублировать">
+          📋
+        </button>
+
         <div className="export-dropdown">
-          <button 
+          <button
             onClick={(e) => {
               e.stopPropagation()
               setShowExportMenu(!showExportMenu)
@@ -106,25 +118,31 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
           </button>
           {showExportMenu && (
             <div className="export-menu-card">
-              <button onClick={handleExportCSV}>
-                📊 CSV
-              </button>
-              <button onClick={handleExportJSON}>
-                📋 JSON
-              </button>
+              <button onClick={handleExportCSV}>📊 CSV</button>
+              <button onClick={handleExportJSON}>📋 JSON</button>
             </div>
           )}
         </div>
-        
-        <button onClick={() => setShowDeleteConfirm(true)} title="Удалить">🗑️</button>
+
+        <button onClick={() => setShowDeleteConfirm(true)} title="Удалить">
+          🗑️
+        </button>
       </div>
 
       {showDeleteConfirm && (
-        <div className="confirm-dialog-overlay" onClick={() => setShowDeleteConfirm(false)}>
+        <div
+          className="confirm-dialog-overlay"
+          onClick={() => setShowDeleteConfirm(false)}
+        >
           <div className="confirm-dialog" onClick={(e) => e.stopPropagation()}>
             <p>Удалить "{document.name}"?</p>
             <div className="confirm-dialog-actions">
-              <button onClick={() => { onDelete(); setShowDeleteConfirm(false) }}>
+              <button
+                onClick={() => {
+                  onDelete()
+                  setShowDeleteConfirm(false)
+                }}
+              >
                 Удалить
               </button>
               <button onClick={() => setShowDeleteConfirm(false)}>

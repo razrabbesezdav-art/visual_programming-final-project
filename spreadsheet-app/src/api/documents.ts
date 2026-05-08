@@ -1,17 +1,25 @@
-import { Document, DocumentPreview, CreateDocumentDTO, UpdateDocumentDTO } from '@/types/documents'
+import {
+  Document,
+  DocumentPreview,
+  CreateDocumentDTO,
+  UpdateDocumentDTO,
+} from '@/types/documents'
 import { CellData, SpreadsheetStore } from '@/types'
 
 const STORAGE_KEY = 'spreadsheet-documents'
 const USER_ID = 'current-user'
 
 class ApiError extends Error {
-  constructor(public status: number, message: string) {
+  constructor(
+    public status: number,
+    message: string
+  ) {
     super(message)
     this.name = 'ApiError'
   }
 }
 
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).substr(2)
@@ -30,7 +38,7 @@ export const documentsApi = {
   list: async (): Promise<DocumentPreview[]> => {
     await delay(100)
     const docs = getDocuments()
-    return docs.map(doc => ({
+    return docs.map((doc) => ({
       id: doc.id,
       name: doc.name,
       createdAt: doc.createdAt,
@@ -42,7 +50,7 @@ export const documentsApi = {
   get: async (id: string): Promise<Document> => {
     await delay(100)
     const docs = getDocuments()
-    const doc = docs.find(d => d.id === id)
+    const doc = docs.find((d) => d.id === id)
     if (!doc) throw new ApiError(404, 'Document not found')
     return doc
   },
@@ -51,7 +59,7 @@ export const documentsApi = {
     await delay(200)
     const docs = getDocuments()
     const now = new Date().toISOString()
-    
+
     const newDoc: Document = {
       id: generateId(),
       userId: USER_ID,
@@ -77,11 +85,11 @@ export const documentsApi = {
   update: async (id: string, data: UpdateDocumentDTO): Promise<Document> => {
     await delay(150)
     const docs = getDocuments()
-    const index = docs.findIndex(d => d.id === id)
+    const index = docs.findIndex((d) => d.id === id)
     if (index === -1) throw new ApiError(404, 'Document not found')
 
     const doc = docs[index]
-    
+
     if (data.name !== undefined) doc.name = data.name
     if (data.cells) {
       doc.cells = { ...doc.cells, ...data.cells }
@@ -92,7 +100,7 @@ export const documentsApi = {
     if (data.rowHeights) {
       doc.rowHeights = { ...doc.rowHeights, ...data.rowHeights }
     }
-    
+
     doc.updatedAt = new Date().toISOString()
     docs[index] = doc
     saveDocuments(docs)
@@ -102,7 +110,7 @@ export const documentsApi = {
   delete: async (id: string): Promise<void> => {
     await delay(100)
     const docs = getDocuments()
-    const filtered = docs.filter(d => d.id !== id)
+    const filtered = docs.filter((d) => d.id !== id)
     if (filtered.length === docs.length) {
       throw new ApiError(404, 'Document not found')
     }
@@ -112,7 +120,7 @@ export const documentsApi = {
   duplicate: async (id: string, newName: string): Promise<Document> => {
     await delay(200)
     const docs = getDocuments()
-    const original = docs.find(d => d.id === id)
+    const original = docs.find((d) => d.id === id)
     if (!original) throw new ApiError(404, 'Document not found')
 
     const now = new Date().toISOString()
@@ -133,10 +141,13 @@ export const documentsApi = {
   },
 
   // НОВОЕ: Экспорт документа
-  export: async (id: string, format: 'csv' | 'json'): Promise<{ content: string; filename: string }> => {
+  export: async (
+    id: string,
+    format: 'csv' | 'json'
+  ): Promise<{ content: string; filename: string }> => {
     await delay(100)
     const docs = getDocuments()
-    const doc = docs.find(d => d.id === id)
+    const doc = docs.find((d) => d.id === id)
     if (!doc) throw new ApiError(404, 'Document not found')
 
     const store: SpreadsheetStore = {
@@ -151,19 +162,22 @@ export const documentsApi = {
       const content = exportToCSV(store)
       return {
         content,
-        filename: `${doc.name}.csv`
+        filename: `${doc.name}.csv`,
       }
     } else {
       const content = exportToJSON(store, doc)
       return {
         content,
-        filename: `${doc.name}.json`
+        filename: `${doc.name}.json`,
       }
     }
-  }
+  },
 }
 
-function createEmptyCells(rows: number, cols: number): Record<string, CellData> {
+function createEmptyCells(
+  rows: number,
+  cols: number
+): Record<string, CellData> {
   const cells: Record<string, CellData> = {}
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
@@ -225,7 +239,7 @@ function exportToCSV(store: SpreadsheetStore): string {
       const cellId = `${String.fromCharCode(65 + c)}${r + 1}`
       const cell = store.cells[cellId]
       const value = cell ? cell.displayValue || cell.rawValue || '' : ''
-      
+
       if (value) hasData = true
       line.push(escapeCSVField(value))
     }
@@ -261,7 +275,11 @@ function exportToJSON(store: SpreadsheetStore, doc: Document): string {
   return JSON.stringify(data, null, 2)
 }
 
-export function downloadFile(content: string, filename: string, mimeType: string) {
+export function downloadFile(
+  content: string,
+  filename: string,
+  mimeType: string
+) {
   const blob = new Blob([content], { type: mimeType })
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')

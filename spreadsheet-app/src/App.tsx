@@ -3,7 +3,9 @@ import { Dashboard } from './components/Dashboard/Dashboard'
 import { Spreadsheet } from './components/Spreadsheet'
 
 const App: React.FC = () => {
-  const [currentDocumentId, setCurrentDocumentId] = useState<string | null>(null)
+  const [currentDocumentId, setCurrentDocumentId] = useState<string | null>(
+    null
+  )
 
   return (
     <div className="app">

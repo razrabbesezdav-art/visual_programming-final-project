@@ -40,7 +40,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenDocument }) => {
     }
   }
 
-  if (loading) return <div className="dashboard-loading">Загрузка документов...</div>
+  if (loading)
+    return <div className="dashboard-loading">Загрузка документов...</div>
   if (error) return <div className="dashboard-error">Ошибка: {error}</div>
 
   return (
@@ -48,14 +49,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenDocument }) => {
       <div className="dashboard-header">
         <h1>Мои документы</h1>
         <div className="dashboard-actions">
-          <button 
-            onClick={() => setShowCreateModal(true)} 
+          <button
+            onClick={() => setShowCreateModal(true)}
             className="btn btn-primary"
           >
             + Новый документ
           </button>
-          <button 
-            onClick={() => setShowImport(true)} 
+          <button
+            onClick={() => setShowImport(true)}
             className="btn btn-secondary"
           >
             Импорт CSV
@@ -67,7 +68,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenDocument }) => {
         {documents.length === 0 ? (
           <div className="no-documents">
             <p>У вас пока нет документов</p>
-            <button 
+            <button
               onClick={() => setShowCreateModal(true)}
               className="btn btn-primary"
             >
@@ -75,14 +76,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenDocument }) => {
             </button>
           </div>
         ) : (
-          documents.map(doc => (
+          documents.map((doc) => (
             <DocumentCard
               key={doc.id}
               document={doc}
               onOpen={() => onOpenDocument(doc.id)}
               onRename={(name) => renameDocument(doc.id, name)}
               onDelete={() => deleteDocument(doc.id)}
-              onDuplicate={() => duplicateDocument(doc.id, `${doc.name} (копия)`)}
+              onDuplicate={() =>
+                duplicateDocument(doc.id, `${doc.name} (копия)`)
+              }
             />
           ))
         )}

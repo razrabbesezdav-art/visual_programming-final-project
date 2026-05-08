@@ -4,7 +4,7 @@ import {
   CreateDocumentDTO,
   UpdateDocumentDTO,
 } from '@/types/documents'
-import { CellData } from '@/types'
+import { CellData, SpreadsheetStore } from '@/types'
 
 const STORAGE_KEY = 'spreadsheet-documents'
 const USER_ID = 'current-user'
@@ -19,15 +19,12 @@ class ApiError extends Error {
   }
 }
 
-// Задержка для имитации сети
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-// Генерация ID
 function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).substr(2)
 }
 
-// Работа с localStorage
 function getDocuments(): Document[] {
   const data = localStorage.getItem(STORAGE_KEY)
   return data ? JSON.parse(data) : []
@@ -38,9 +35,8 @@ function saveDocuments(docs: Document[]) {
 }
 
 export const documentsApi = {
-  // Получить список документов
   list: async (): Promise<DocumentPreview[]> => {
-    await delay(100) // Имитация задержки сети
+    await delay(100)
     const docs = getDocuments()
     return docs.map((doc) => ({
       id: doc.id,
@@ -51,7 +47,6 @@ export const documentsApi = {
     }))
   },
 
-  // Получить документ по ID
   get: async (id: string): Promise<Document> => {
     await delay(100)
     const docs = getDocuments()
@@ -60,7 +55,6 @@ export const documentsApi = {
     return doc
   },
 
-  // Создать документ
   create: async (data: CreateDocumentDTO): Promise<Document> => {
     await delay(200)
     const docs = getDocuments()
@@ -88,7 +82,6 @@ export const documentsApi = {
     return newDoc
   },
 
-  // Обновить документ (PATCH)
   update: async (id: string, data: UpdateDocumentDTO): Promise<Document> => {
     await delay(150)
     const docs = getDocuments()
@@ -97,7 +90,6 @@ export const documentsApi = {
 
     const doc = docs[index]
 
-    // Обновляем поля
     if (data.name !== undefined) doc.name = data.name
     if (data.cells) {
       doc.cells = { ...doc.cells, ...data.cells }
@@ -115,7 +107,6 @@ export const documentsApi = {
     return doc
   },
 
-  // Удалить документ
   delete: async (id: string): Promise<void> => {
     await delay(100)
     const docs = getDocuments()
@@ -126,7 +117,6 @@ export const documentsApi = {
     saveDocuments(filtered)
   },
 
-  // Дублировать документ
   duplicate: async (id: string, newName: string): Promise<Document> => {
     await delay(200)
     const docs = getDocuments()
@@ -149,9 +139,41 @@ export const documentsApi = {
     saveDocuments(docs)
     return duplicate
   },
+
+  // НОВОЕ: Экспорт документа
+  export: async (
+    id: string,
+    format: 'csv' | 'json'
+  ): Promise<{ content: string; filename: string }> => {
+    await delay(100)
+    const docs = getDocuments()
+    const doc = docs.find((d) => d.id === id)
+    if (!doc) throw new ApiError(404, 'Document not found')
+
+    const store: SpreadsheetStore = {
+      cells: doc.cells,
+      columnWidths: doc.columnWidths,
+      rowHeights: doc.rowHeights,
+      rowCount: doc.rowCount,
+      colCount: doc.colCount,
+    }
+
+    if (format === 'csv') {
+      const content = exportToCSV(store)
+      return {
+        content,
+        filename: `${doc.name}.csv`,
+      }
+    } else {
+      const content = exportToJSON(store, doc)
+      return {
+        content,
+        filename: `${doc.name}.json`,
+      }
+    }
+  },
 }
 
-// Создание пустых ячеек
 function createEmptyCells(
   rows: number,
   cols: number
@@ -171,7 +193,6 @@ function createEmptyCells(
   return cells
 }
 
-// Создание превью (первые 3x3 ячейки)
 function getPreview(doc: Document): string[][] {
   const preview: string[][] = []
   for (let r = 0; r < Math.min(3, doc.rowCount); r++) {
@@ -184,4 +205,88 @@ function getPreview(doc: Document): string[][] {
     preview.push(row)
   }
   return preview
+}
+
+function exportToCSV(store: SpreadsheetStore): string {
+  const lines: string[] = []
+
+  let maxRow = 0
+  let maxCol = 0
+
+  for (let r = 0; r < store.rowCount; r++) {
+    for (let c = 0; c < store.colCount; c++) {
+      const cellId = `${String.fromCharCode(65 + c)}${r + 1}`
+      const cell = store.cells[cellId]
+      if (cell && (cell.displayValue || cell.rawValue)) {
+        maxRow = Math.max(maxRow, r)
+        maxCol = Math.max(maxCol, c)
+      }
+    }
+  }
+
+  if (maxRow === 0 && maxCol === 0) {
+    const firstCell = store.cells['A1']
+    if (!firstCell || (!firstCell.displayValue && !firstCell.rawValue)) {
+      return ''
+    }
+  }
+
+  for (let r = 0; r <= maxRow; r++) {
+    const line: string[] = []
+    let hasData = false
+
+    for (let c = 0; c <= maxCol; c++) {
+      const cellId = `${String.fromCharCode(65 + c)}${r + 1}`
+      const cell = store.cells[cellId]
+      const value = cell ? cell.displayValue || cell.rawValue || '' : ''
+
+      if (value) hasData = true
+      line.push(escapeCSVField(value))
+    }
+
+    if (hasData) {
+      lines.push(line.join(','))
+    }
+  }
+
+  return lines.join('\n')
+}
+
+function escapeCSVField(field: string): string {
+  if (field.includes(',') || field.includes('"') || field.includes('\n')) {
+    return `"${field.replace(/"/g, '""')}"`
+  }
+  return field
+}
+
+function exportToJSON(store: SpreadsheetStore, doc: Document): string {
+  const data = {
+    name: doc.name,
+    version: '1.0',
+    exportedAt: new Date().toISOString(),
+    spreadsheet: {
+      rowCount: store.rowCount,
+      colCount: store.colCount,
+      columnWidths: store.columnWidths,
+      rowHeights: store.rowHeights,
+      cells: store.cells,
+    },
+  }
+  return JSON.stringify(data, null, 2)
+}
+
+export function downloadFile(
+  content: string,
+  filename: string,
+  mimeType: string
+) {
+  const blob = new Blob([content], { type: mimeType })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = filename
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
 }

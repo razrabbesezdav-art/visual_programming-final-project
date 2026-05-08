@@ -57,32 +57,36 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
 
   const formulaBarRef = useRef<HTMLInputElement>(null)
 
+  // Функция загрузки документа
+  const loadDocumentFromApi = useCallback(
+    async (id: string) => {
+      try {
+        const doc = await documentsApi.get(id)
+        if (doc) {
+          setDocumentName(doc.name)
+          loadDocument({
+            cells: doc.cells,
+            columnWidths: doc.columnWidths,
+            rowHeights: doc.rowHeights,
+            rowCount: doc.rowCount,
+            colCount: doc.colCount,
+          })
+        }
+      } catch (error) {
+        console.error('Failed to load document:', error)
+      }
+    },
+    [loadDocument]
+  )
+
   useEffect(() => {
     if (documentId) {
       loadDocumentFromApi(documentId)
     }
-  }, [documentId])
-
-  const loadDocumentFromApi = async (id: string) => {
-    try {
-      const doc = await documentsApi.get(id)
-      if (doc) {
-        setDocumentName(doc.name)
-        loadDocument({
-          cells: doc.cells,
-          columnWidths: doc.columnWidths,
-          rowHeights: doc.rowHeights,
-          rowCount: doc.rowCount,
-          colCount: doc.colCount,
-        })
-      }
-    } catch (error) {
-      console.error('Failed to load document:', error)
-    }
-  }
+  }, [documentId, loadDocumentFromApi])
 
   // Функции экспорта
-  const handleExportCSV = async () => {
+  const handleExportCSV = useCallback(async () => {
     if (!documentId) return
     try {
       const { content, filename } = await documentsApi.export(documentId, 'csv')
@@ -91,9 +95,9 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
     } catch (error) {
       console.error('Export failed:', error)
     }
-  }
+  }, [documentId])
 
-  const handleExportJSON = async () => {
+  const handleExportJSON = useCallback(async () => {
     if (!documentId) return
     try {
       const { content, filename } = await documentsApi.export(
@@ -105,7 +109,7 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
     } catch (error) {
       console.error('Export failed:', error)
     }
-  }
+  }, [documentId])
 
   const handleCellMouseDown = useCallback(
     (pos: Position, e: React.MouseEvent) => {

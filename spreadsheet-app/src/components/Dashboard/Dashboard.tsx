@@ -1,5 +1,14 @@
-import React, { useState } from 'react'
-import { useDocuments } from '@/hooks/useDocuments'
+import React, { useEffect, useState } from 'react'
+import { useAppSelector, useAppDispatch } from '@/store/hooks'
+import {
+  fetchDocuments,
+  createDocument,
+  renameDocument,
+  deleteDocument,
+  duplicateDocument,
+  setActiveDocument,
+  importDocument,
+} from '@/store/slices/documentsSlice'
 import { DocumentCard } from './DocumentCard'
 import { CreateDocumentModal } from './CreateDocumentModal'
 import { ExportImportMenu } from '../ExportImport/ExportImportMenu'
@@ -10,33 +19,34 @@ interface DashboardProps {
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ onOpenDocument }) => {
+  const dispatch = useAppDispatch()
   const {
-    documents,
+    list: documents,
     loading,
     error,
-    createDocument,
-    renameDocument,
-    deleteDocument,
-    duplicateDocument,
-    importDocument,
-  } = useDocuments()
-
+  } = useAppSelector((state) => state.documents)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showImport, setShowImport] = useState(false)
 
+  useEffect(() => {
+    dispatch(fetchDocuments())
+  }, [dispatch])
+
   const handleCreate = async (name: string, rows: number, cols: number) => {
-    const doc = await createDocument(name, rows, cols)
-    if (doc) {
+    const result = await dispatch(
+      createDocument({ name, rowCount: rows, colCount: cols })
+    )
+    if (createDocument.fulfilled.match(result)) {
       setShowCreateModal(false)
-      onOpenDocument(doc.id)
+      onOpenDocument(result.payload.doc.id)
     }
   }
 
   const handleImport = async (csvContent: string, name: string) => {
-    const doc = await importDocument(csvContent, name)
-    if (doc) {
+    const result = await dispatch(importDocument({ csvContent, name }))
+    if (importDocument.fulfilled.match(result)) {
       setShowImport(false)
-      onOpenDocument(doc.id)
+      onOpenDocument(result.payload.doc.id)
     }
   }
 
@@ -81,10 +91,17 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenDocument }) => {
               key={doc.id}
               document={doc}
               onOpen={() => onOpenDocument(doc.id)}
-              onRename={(name) => renameDocument(doc.id, name)}
-              onDelete={() => deleteDocument(doc.id)}
+              onRename={(name) =>
+                dispatch(renameDocument({ id: doc.id, name }))
+              }
+              onDelete={() => dispatch(deleteDocument(doc.id))}
               onDuplicate={() =>
-                duplicateDocument(doc.id, `${doc.name} (копия)`)
+                dispatch(
+                  duplicateDocument({
+                    id: doc.id,
+                    newName: `${doc.name} (копия)`,
+                  })
+                )
               }
             />
           ))
@@ -97,7 +114,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenDocument }) => {
           onClose={() => setShowCreateModal(false)}
         />
       )}
-
       {showImport && (
         <ExportImportMenu
           onImport={handleImport}

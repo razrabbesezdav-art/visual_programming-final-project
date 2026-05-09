@@ -28,7 +28,6 @@ export const Cell: React.FC<CellProps> = memo(
     const [isLocalEditing, setIsLocalEditing] = useState(false)
     const inputRef = useRef<HTMLInputElement>(null)
 
-    // Синхронизируем isEditing с локальным состоянием
     useEffect(() => {
       if (isEditing) {
         setEditValue(value)

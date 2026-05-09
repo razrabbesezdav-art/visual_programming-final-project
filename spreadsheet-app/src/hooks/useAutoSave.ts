@@ -1,3 +1,5 @@
+export {}
+/*
 import { useRef, useCallback, useEffect, useState } from 'react'
 import { documentsApi } from '@/api/documents'
 import { SaveStatus } from '@/types/documents'
@@ -124,3 +126,4 @@ export function useAutoSave(
 
   return { saveStatus, scheduleSave, manualSave, save }
 }
+*/

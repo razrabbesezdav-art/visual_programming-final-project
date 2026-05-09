@@ -40,7 +40,6 @@ function getNumericValue(cellId: string, getCell: CellGetter): number | null {
   return null
 }
 
-// Парсит отдельный аргумент функции
 function parseArgument(
   arg: string,
   getCell: CellGetter
@@ -121,7 +120,7 @@ function getRowRangeValues(
   const maxRow = Math.max(startRow, endRow)
 
   const values: number[] = []
-  // Проверяем все возможные колонки (A-ZZ примерно 702 колонки)
+  // Проверяем все возможные колонки A-ZZ
   for (let r = minRow; r <= maxRow; r++) {
     for (let c = 0; c < 100; c++) {
       const val = getNumericValue(toCellId(r, c), getCell)
@@ -144,7 +143,6 @@ function getColRangeValues(
   const maxCol = Math.max(startCol, endCol)
 
   const values: number[] = []
-  // Проверяем много строк
   for (let r = 0; r < 100; r++) {
     for (let c = minCol; c <= maxCol; c++) {
       const val = getNumericValue(toCellId(r, c), getCell)
@@ -195,7 +193,7 @@ export function evaluateFormula(
 
       if (result === null) {
         console.warn(`Cannot parse argument: "${arg}"`)
-        return '#ERROR' // Возвращаем ошибку если аргумент не распознан
+        return '#ERROR'
       }
 
       if (Array.isArray(result)) {
@@ -233,7 +231,6 @@ export function evaluateFormula(
 
   // Обработка арифметических выражений
   try {
-    // Заменяем ссылки на ячейки их числовыми значениями
     let evalExpr = expr
     const cellRefs = expr.match(/([A-Z]+\d+)/gi)
     if (cellRefs) {
@@ -276,7 +273,6 @@ export function evaluateFormula(
 
 // Разбивает строку аргументов, учитывая возможные пробелы
 function splitArguments(argsString: string): string[] {
-  // Просто разбиваем по запятым, так как вложенных функций пока нет
   return argsString
     .split(';')
     .map((arg) => arg.trim())

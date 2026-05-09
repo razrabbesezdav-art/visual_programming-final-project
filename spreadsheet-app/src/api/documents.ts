@@ -140,7 +140,6 @@ export const documentsApi = {
     return duplicate
   },
 
-  // НОВОЕ: Экспорт документа
   export: async (
     id: string,
     format: 'csv' | 'json'

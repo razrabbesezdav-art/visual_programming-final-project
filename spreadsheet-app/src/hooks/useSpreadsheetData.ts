@@ -1,4 +1,5 @@
-import { useReducer, useCallback } from 'react'
+export {}
+/*import { useReducer, useCallback } from 'react'
 import { SpreadsheetStore, CellData, Action, Position } from '@/types'
 import { toCellId, parseCellId } from '@/utils/cellUtils'
 import { evaluateFormula, detectType } from '@/utils/formulaParser'
@@ -34,7 +35,7 @@ function initializeStore(rows: number, cols: number): SpreadsheetStore {
   }
 }
 
-// НОВОЕ: Загрузка данных из сохраненного документа
+//Загрузка данных из сохраненного документа
 function loadFromDocument(doc: {
   cells: Record<string, CellData>
   columnWidths: Record<number, number>
@@ -287,8 +288,6 @@ function reducer(state: SpreadsheetStore, action: Action): SpreadsheetStore {
   }
 }
 
-// ... функции shiftRows и shiftCols остаются без изменений ...
-
 export function useSpreadsheetData(
   initialRows = DEFAULT_ROWS,
   initialCols = DEFAULT_COLS
@@ -303,7 +302,6 @@ export function useSpreadsheetData(
     dispatch({ type: 'UPDATE_CELL', position: pos, value })
   }, [])
 
-  // НОВОЕ: Загрузка документа
   const loadDocument = useCallback(
     (doc: {
       cells: Record<string, CellData>
@@ -442,3 +440,4 @@ function shiftCols(
     colCount: direction === 'right' ? colCount + 1 : colCount - 1,
   }
 }
+*/

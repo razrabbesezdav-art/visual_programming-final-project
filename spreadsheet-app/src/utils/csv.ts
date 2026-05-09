@@ -14,7 +14,7 @@ export function exportToCSV(store: SpreadsheetStore): string {
         : ''
       line.push(value)
     }
-    // Убираем пустые ячейки справа (оптимизация)
+
     while (line.length > 0 && line[line.length - 1] === '') {
       line.pop()
     }

@@ -55,7 +55,7 @@ export const CreateDocumentModal: React.FC<CreateDocumentModalProps> = ({
                   setCols(Math.max(1, parseInt(e.target.value) || 26))
                 }
                 min={1}
-                max={702} // до ZZ
+                max={702}
               />
             </div>
           </div>

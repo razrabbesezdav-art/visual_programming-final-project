@@ -1,8 +1,29 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react'
-import { useSpreadsheetData } from '@/hooks/useSpreadsheetData'
-import { useAutoSave } from '@/hooks/useAutoSave'
-import { useContextMenu } from '@/hooks/useContextMenu'
+import React, { useEffect, useCallback, useRef } from 'react'
+import { useAppSelector, useAppDispatch } from '@/store/hooks'
+import {
+  updateCell,
+  loadDocument,
+  setColumnWidth,
+  setRowHeight,
+  addRowAbove,
+  addRowBelow,
+  deleteRow,
+  addColumnLeft,
+  addColumnRight,
+  deleteColumn,
+  setSelectedCell,
+  setSelectedRange,
+  setEditingCell,
+  setScrollTop,
+  setScrollLeft,
+  undo,
+  redo,
+  pushHistory,
+} from '@/store/slices/spreadsheetSlice'
+import { setActiveDocument } from '@/store/slices/documentsSlice'
+import { setSaveStatus } from '@/store/slices/uiSlice'
 import { documentsApi, downloadFile } from '@/api/documents'
+import { useContextMenu } from '@/hooks/useContextMenu'
 import { Grid } from '@/components/Grid'
 import { FormulaBar } from '@/components/FormulaBar'
 import { ColumnHeaders } from '@/components/ColumnHeaders'
@@ -21,32 +42,11 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
   documentId,
   onBack,
 }) => {
-  const {
-    store,
-    updateCell,
-    loadDocument,
-    setColumnWidth,
-    setRowHeight,
-    addRowAbove,
-    addRowBelow,
-    deleteRow,
-    addColLeft,
-    addColRight,
-    deleteCol,
-  } = useSpreadsheetData()
-
-  const [selectedCell, setSelectedCell] = useState<Position | null>(null)
-  const [selectedRange, setSelectedRange] = useState<CellRange | null>(null)
-  const [editingCell, setEditingCell] = useState<Position | null>(null)
-  const [scrollTop, setScrollTop] = useState(0)
-  const [scrollLeft, setScrollLeft] = useState(0)
-  const [documentName, setDocumentName] = useState('')
-  const [showExportMenu, setShowExportMenu] = useState(false)
-
-  const { saveStatus, scheduleSave, manualSave } = useAutoSave(
-    documentId,
-    store
-  )
+  const dispatch = useAppDispatch()
+  const store = useAppSelector((state) => state.spreadsheet)
+  const saveStatus = useAppSelector((state) => state.ui.saveStatus)
+  const [documentName, setDocumentName] = React.useState('')
+  const [showExportMenu, setShowExportMenu] = React.useState(false)
 
   const {
     menu: contextMenu,
@@ -57,31 +57,48 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
 
   const formulaBarRef = useRef<HTMLInputElement>(null)
 
+  // Загрузка документа при изменении documentId
   useEffect(() => {
     if (!documentId) return
-
-    const loadDocumentFromApi = async () => {
+    const fetchDoc = async () => {
       try {
         const doc = await documentsApi.get(documentId)
         if (doc) {
           setDocumentName(doc.name)
-          loadDocument({
-            cells: doc.cells,
-            columnWidths: doc.columnWidths,
-            rowHeights: doc.rowHeights,
-            rowCount: doc.rowCount,
-            colCount: doc.colCount,
-          })
+          dispatch(
+            loadDocument({
+              cells: doc.cells,
+              columnWidths: doc.columnWidths,
+              rowHeights: doc.rowHeights,
+              rowCount: doc.rowCount,
+              colCount: doc.colCount,
+            })
+          )
+          dispatch(setActiveDocument(documentId))
         }
       } catch (error) {
         console.error('Failed to load document:', error)
       }
     }
+    fetchDoc()
+  }, [documentId, dispatch])
 
-    loadDocumentFromApi()
-  }, [documentId, loadDocument])
+  // Горячие клавиши Undo/Redo
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault()
+        dispatch(undo())
+      } else if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+        e.preventDefault()
+        dispatch(redo())
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [dispatch])
 
-  // Функции экспорта
+  // Экспорт
   const handleExportCSV = useCallback(async () => {
     if (!documentId) return
     try {
@@ -107,54 +124,61 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
     }
   }, [documentId])
 
+  // Обработчики ячеек
   const handleCellMouseDown = useCallback(
     (pos: Position, e: React.MouseEvent) => {
-      setEditingCell(null)
-      if (e.shiftKey && selectedCell) {
-        setSelectedRange({ start: selectedCell, end: pos })
+      dispatch(setEditingCell(null))
+      if (e.shiftKey && store.selectedCell) {
+        dispatch(setSelectedRange({ start: store.selectedCell, end: pos }))
       } else {
-        setSelectedCell(pos)
-        setSelectedRange(null)
+        dispatch(setSelectedCell(pos))
+        dispatch(setSelectedRange(null))
       }
     },
-    [selectedCell]
+    [dispatch, store.selectedCell]
   )
 
-  const handleCellDoubleClick = useCallback((pos: Position) => {
-    setEditingCell(pos)
-  }, [])
+  const handleCellDoubleClick = useCallback(
+    (pos: Position) => {
+      dispatch(setEditingCell(pos))
+    },
+    [dispatch]
+  )
 
   const handleCellCommit = useCallback(
     (pos: Position, value: string) => {
-      updateCell(pos, value)
-      setEditingCell(null)
-      scheduleSave()
+      dispatch(pushHistory())
+      dispatch(updateCell({ position: pos, value }))
+      dispatch(setEditingCell(null))
     },
-    [updateCell, scheduleSave]
+    [dispatch]
   )
 
   const handleFormulaChange = useCallback(
     (value: string) => {
-      if (selectedCell) {
-        updateCell(selectedCell, value)
-        scheduleSave()
+      if (store.selectedCell) {
+        dispatch(pushHistory())
+        dispatch(updateCell({ position: store.selectedCell, value }))
       }
     },
-    [selectedCell, updateCell, scheduleSave]
+    [dispatch, store.selectedCell]
   )
 
-  const activeCellData = selectedCell
-    ? store.cells[toCellId(selectedCell.row, selectedCell.col)]
+  const activeCellData = store.selectedCell
+    ? store.cells[toCellId(store.selectedCell.row, store.selectedCell.col)]
     : null
 
   const totalWidth = Object.values(store.columnWidths)
     .slice(0, store.colCount)
     .reduce((sum, w) => sum + w, 0)
 
-  const handleScroll = useCallback((top: number, left: number) => {
-    setScrollTop(top)
-    setScrollLeft(left)
-  }, [])
+  const handleScroll = useCallback(
+    (top: number, left: number) => {
+      dispatch(setScrollTop(top))
+      dispatch(setScrollLeft(left))
+    },
+    [dispatch]
+  )
 
   return (
     <div className="spreadsheet">
@@ -170,14 +194,15 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
         />
         <SaveIndicator status={saveStatus} />
         <button
-          onClick={manualSave}
+          onClick={() =>
+            dispatch(setSaveStatus({ status: 'saving', lastSaved: new Date() }))
+          }
           title="Сохранить (Ctrl+S)"
           className="btn-icon"
         >
           💾
         </button>
 
-        {/* Кнопка экспорта */}
         <div className="export-dropdown">
           <button
             onClick={() => setShowExportMenu(!showExportMenu)}
@@ -205,23 +230,25 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
           columnWidths={store.columnWidths}
           colCount={store.colCount}
           totalWidth={totalWidth}
-          scrollLeft={scrollLeft}
-          onColumnResize={setColumnWidth}
+          scrollLeft={store.scrollLeft}
+          onColumnResize={(col, width) =>
+            dispatch(setColumnWidth({ col, width }))
+          }
           onContextMenu={handleColumnContextMenu}
         />
         <RowHeaders
           rowHeights={store.rowHeights}
           rowCount={store.rowCount}
-          scrollTop={scrollTop}
-          onRowResize={setRowHeight}
+          scrollTop={store.scrollTop}
+          onRowResize={(row, height) => dispatch(setRowHeight({ row, height }))}
           onContextMenu={handleRowContextMenu}
         />
         <div className="grid-wrapper">
           <Grid
             store={store}
-            selectedCell={selectedCell}
-            selectedRange={selectedRange}
-            editingCell={editingCell}
+            selectedCell={store.selectedCell}
+            selectedRange={store.selectedRange}
+            editingCell={store.editingCell}
             onCellCommit={handleCellCommit}
             onCellDoubleClick={handleCellDoubleClick}
             onCellMouseDown={handleCellMouseDown}
@@ -237,12 +264,12 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
           type={contextMenu.type}
           index={contextMenu.index}
           onClose={closeContextMenu}
-          onAddRowAbove={() => addRowAbove(contextMenu.index)}
-          onAddRowBelow={() => addRowBelow(contextMenu.index)}
-          onDeleteRow={() => deleteRow(contextMenu.index)}
-          onAddColumnLeft={() => addColLeft(contextMenu.index)}
-          onAddColumnRight={() => addColRight(contextMenu.index)}
-          onDeleteColumn={() => deleteCol(contextMenu.index)}
+          onAddRowAbove={() => dispatch(addRowAbove(contextMenu.index))}
+          onAddRowBelow={() => dispatch(addRowBelow(contextMenu.index))}
+          onDeleteRow={() => dispatch(deleteRow(contextMenu.index))}
+          onAddColumnLeft={() => dispatch(addColumnLeft(contextMenu.index))}
+          onAddColumnRight={() => dispatch(addColumnRight(contextMenu.index))}
+          onDeleteColumn={() => dispatch(deleteColumn(contextMenu.index))}
         />
       )}
     </div>

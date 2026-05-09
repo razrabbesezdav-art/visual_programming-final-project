@@ -8,10 +8,15 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
+    dedupe: ['react', 'react-dom'],
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-redux', '@reduxjs/toolkit'],
+    force: true,
   },
   build: {
     commonjsOptions: {
-      transformMixedEsModules: true, // разрешить смешанные модули
+      transformMixedEsModules: true,
     },
   },
 })

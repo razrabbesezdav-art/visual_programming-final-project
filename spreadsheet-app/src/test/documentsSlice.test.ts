@@ -8,6 +8,7 @@ import documentsReducer, {
   setActiveDocument,
 } from '@/store/slices/documentsSlice'
 import { documentsApi } from '@/api/documents'
+import { DocumentPreview } from '@/types/documents'
 
 // Мокаем API
 vi.mock('@/api/documents', () => ({
@@ -142,7 +143,7 @@ describe('documentsSlice', () => {
   })
 
   it('should handle deleteDocument fulfilled', () => {
-    const previews: any[] = []
+    const previews: DocumentPreview[] = []
     const state = documentsReducer(
       {
         ...initialState,

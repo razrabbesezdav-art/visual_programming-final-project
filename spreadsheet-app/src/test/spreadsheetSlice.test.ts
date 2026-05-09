@@ -8,16 +8,18 @@ import spreadsheetReducer, {
   setColumnWidth,
   setRowHeight,
   addRowAbove,
-  addRowBelow,
   deleteRow,
   addColumnLeft,
-  addColumnRight,
   deleteColumn,
 } from '@/store/slices/spreadsheetSlice'
 
+import type { UnknownAction } from 'redux'
+
 describe('spreadsheetSlice', () => {
   it('should initialize with empty cells', () => {
-    const state = spreadsheetReducer(undefined, { type: '@@INIT' } as any)
+    const state = spreadsheetReducer(undefined, {
+      type: '@@INIT',
+    } as UnknownAction)
     expect(state.rowCount).toBe(100)
     expect(state.colCount).toBe(26)
     expect(state.cells).toEqual({})

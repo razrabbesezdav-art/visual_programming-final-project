@@ -6,7 +6,6 @@ import {
   renameDocument,
   deleteDocument,
   duplicateDocument,
-  setActiveDocument,
   importDocument,
 } from '@/store/slices/documentsSlice'
 import { DocumentCard } from './DocumentCard'

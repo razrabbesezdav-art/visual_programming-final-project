@@ -77,10 +77,7 @@ const recalcAll = (state: SpreadsheetState): void => {
   for (const id in newCells) {
     const cell = newCells[id]
     if (cell.type === 'formula') {
-      const res = evaluateFormula(
-        cell.rawValue,
-        (refId) => newCells[refId] || (undefined as any)
-      )
+      const res = evaluateFormula(cell.rawValue, (refId) => newCells[refId])
       const newDisplay =
         res === null || res === undefined ? '#ERROR' : String(res)
       newCells[id] = {

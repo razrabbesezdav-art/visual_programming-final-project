@@ -21,7 +21,7 @@ import {
   pushHistory,
 } from '@/store/slices/spreadsheetSlice'
 import { setActiveDocument } from '@/store/slices/documentsSlice'
-import { setSaveStatus, setUnsavedChanges } from '@/store/slices/uiSlice'
+import { setSaveStatus } from '@/store/slices/uiSlice'
 import { documentsApi, downloadFile } from '@/api/documents'
 import { useContextMenu } from '@/hooks/useContextMenu'
 import { Grid } from '@/components/Grid'
@@ -30,7 +30,7 @@ import { ColumnHeaders } from '@/components/ColumnHeaders'
 import { RowHeaders } from '@/components/RowHeaders'
 import { ContextMenu } from '@/components/ContextMenu'
 import { SaveIndicator } from '@/components/Spreadsheet/SaveIndicator'
-import { Position, CellRange } from '@/types'
+import { Position } from '@/types'
 import { toCellId } from '@/utils/cellUtils'
 
 interface SpreadsheetProps {

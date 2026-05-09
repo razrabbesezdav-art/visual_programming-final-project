@@ -5,12 +5,14 @@ export interface UIState {
   saveStatus: SaveStatus
   createModalOpen: boolean
   importModalOpen: boolean
+  hasUnsavedChanges: boolean
 }
 
 const initialState: UIState = {
   saveStatus: { status: 'saved', lastSaved: null },
   createModalOpen: false,
   importModalOpen: false,
+  hasUnsavedChanges: false,
 }
 
 const uiSlice = createSlice({
@@ -19,6 +21,12 @@ const uiSlice = createSlice({
   reducers: {
     setSaveStatus(state, action: PayloadAction<SaveStatus>) {
       state.saveStatus = action.payload
+      if (action.payload.status === 'saved') {
+        state.hasUnsavedChanges = false
+      }
+    },
+    setUnsavedChanges(state, action: PayloadAction<boolean>) {
+      state.hasUnsavedChanges = action.payload
     },
     openCreateModal(state) {
       state.createModalOpen = true
@@ -37,9 +45,11 @@ const uiSlice = createSlice({
 
 export const {
   setSaveStatus,
+  setUnsavedChanges,
   openCreateModal,
   closeCreateModal,
   openImportModal,
   closeImportModal,
 } = uiSlice.actions
+
 export default uiSlice.reducer

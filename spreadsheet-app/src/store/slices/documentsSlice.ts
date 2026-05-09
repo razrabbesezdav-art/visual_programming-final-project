@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { documentsApi } from '@/api/documents'
 import { DocumentPreview } from '@/types/documents'
+import { importCSV } from '@/utils/csv'
 
 interface DocumentsState {
   list: DocumentPreview[]
@@ -87,7 +88,7 @@ export const exportDocumentJSON = createAsyncThunk(
 export const importDocument = createAsyncThunk(
   'documents/import',
   async (data: { csvContent: string; name: string }) => {
-    const { cells, rowCount, colCount } = parseCSV(data.csvContent)
+    const { cells, rowCount, colCount } = importCSV(data.csvContent)
     const doc = await documentsApi.create({
       name: data.name,
       rowCount: Math.max(rowCount, 100),
@@ -112,7 +113,6 @@ const documentsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // fetchDocuments
       .addCase(fetchDocuments.pending, (state) => {
         state.loading = true
         state.error = null
@@ -125,32 +125,23 @@ const documentsSlice = createSlice({
         state.loading = false
         state.error = action.error.message ?? 'Failed to load documents'
       })
-      // createDocument
       .addCase(createDocument.fulfilled, (state, action) => {
         state.list = action.payload.previews
       })
-      // renameDocument
       .addCase(renameDocument.fulfilled, (state, action) => {
         state.list = action.payload
       })
-      // deleteDocument
       .addCase(deleteDocument.fulfilled, (state, action) => {
         state.list = action.payload
       })
-      // duplicateDocument
       .addCase(duplicateDocument.fulfilled, (state, action) => {
         state.list = action.payload
+      })
+      .addCase(importDocument.fulfilled, (state, action) => {
+        state.list = action.payload.previews
       })
   },
 })
 
 export const { setActiveDocument, clearError } = documentsSlice.actions
 export default documentsSlice.reducer
-
-function parseCSV(csvContent: string): {
-  cells: any
-  rowCount: any
-  colCount: any
-} {
-  throw new Error('Function not implemented.')
-}

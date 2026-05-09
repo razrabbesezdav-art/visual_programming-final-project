@@ -15,6 +15,7 @@ describe('uiSlice', () => {
     saveStatus: { status: 'saved', lastSaved: null },
     createModalOpen: false,
     importModalOpen: false,
+    hasUnsavedChanges: false,
   }
 
   it('should update save status', () => {

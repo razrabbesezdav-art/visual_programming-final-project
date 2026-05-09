@@ -21,7 +21,7 @@ import {
   pushHistory,
 } from '@/store/slices/spreadsheetSlice'
 import { setActiveDocument } from '@/store/slices/documentsSlice'
-import { setSaveStatus } from '@/store/slices/uiSlice'
+import { setSaveStatus, setUnsavedChanges } from '@/store/slices/uiSlice'
 import { documentsApi, downloadFile } from '@/api/documents'
 import { useContextMenu } from '@/hooks/useContextMenu'
 import { Grid } from '@/components/Grid'
@@ -45,6 +45,9 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
   const dispatch = useAppDispatch()
   const store = useAppSelector((state) => state.spreadsheet)
   const saveStatus = useAppSelector((state) => state.ui.saveStatus)
+  const hasUnsavedChanges = useAppSelector(
+    (state) => state.ui.hasUnsavedChanges
+  )
   const [documentName, setDocumentName] = React.useState('')
   const [showExportMenu, setShowExportMenu] = React.useState(false)
 
@@ -54,10 +57,9 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
     handleColumnContextMenu,
     handleRowContextMenu,
   } = useContextMenu()
-
   const formulaBarRef = useRef<HTMLInputElement>(null)
 
-  // Загрузка документа при изменении documentId
+  // Загрузка документа
   useEffect(() => {
     if (!documentId) return
     const fetchDoc = async () => {
@@ -83,22 +85,60 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
     fetchDoc()
   }, [documentId, dispatch])
 
-  // Горячие клавиши Undo/Redo
+  // Горячие клавиши: Undo/Redo, Ctrl+S
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
         e.preventDefault()
         dispatch(undo())
       } else if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
         e.preventDefault()
         dispatch(redo())
+      } else if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault()
+        if (!documentId) return
+        dispatch(setSaveStatus({ status: 'saving', lastSaved: new Date() }))
+        const currentCells = store.cells
+        const currentColWidths = store.columnWidths
+        const currentRowHeights = store.rowHeights
+        documentsApi
+          .update(documentId, {
+            cells: currentCells,
+            columnWidths: currentColWidths,
+            rowHeights: currentRowHeights,
+          })
+          .then(() => {
+            dispatch(setSaveStatus({ status: 'saved', lastSaved: new Date() }))
+          })
+          .catch((err) => {
+            dispatch(
+              setSaveStatus({
+                status: 'error',
+                lastSaved: new Date(),
+                error: err.message,
+              })
+            )
+          })
       }
     }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  }, [dispatch])
 
-  // Экспорт
+    //предупреждение при несохранённых изменениях
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault()
+        e.returnValue = ''
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [dispatch, documentId, store, hasUnsavedChanges])
+
+  // Экспорты
   const handleExportCSV = useCallback(async () => {
     if (!documentId) return
     try {
@@ -194,15 +234,35 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
         />
         <SaveIndicator status={saveStatus} />
         <button
-          onClick={() =>
+          onClick={() => {
+            if (!documentId) return
             dispatch(setSaveStatus({ status: 'saving', lastSaved: new Date() }))
-          }
+            documentsApi
+              .update(documentId, {
+                cells: store.cells,
+                columnWidths: store.columnWidths,
+                rowHeights: store.rowHeights,
+              })
+              .then(() =>
+                dispatch(
+                  setSaveStatus({ status: 'saved', lastSaved: new Date() })
+                )
+              )
+              .catch((err) =>
+                dispatch(
+                  setSaveStatus({
+                    status: 'error',
+                    lastSaved: new Date(),
+                    error: err.message,
+                  })
+                )
+              )
+          }}
           title="Сохранить (Ctrl+S)"
           className="btn-icon"
         >
           💾
         </button>
-
         <div className="export-dropdown">
           <button
             onClick={() => setShowExportMenu(!showExportMenu)}

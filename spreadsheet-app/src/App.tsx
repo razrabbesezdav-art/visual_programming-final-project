@@ -1,24 +1,55 @@
-import React, { useState } from 'react'
-import { Dashboard } from './components/Dashboard/Dashboard'
-import { Spreadsheet } from './components/Spreadsheet'
+import React from 'react';
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
+import { AppLayout } from '@/components/Layout/AppLayout';
+import { ProtectedRoute } from '@/components/Auth/ProtectedRoute';
+import { DashboardPage } from '@/pages/DashboardPage';
+import { SpreadsheetPage } from '@/pages/SpreadsheetPage';
+import { ProfilePage } from '@/pages/ProfilePage';
+import { NotFoundPage } from '@/pages/NotFoundPage';
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <AppLayout />,
+    children: [
+      {
+        index: true,
+        element: <Navigate to="/dashboard" replace />,
+      },
+      {
+        path: 'dashboard',
+        element: (
+          <ProtectedRoute>
+            <DashboardPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'documents/:documentId',
+        element: (
+          <ProtectedRoute>
+            <SpreadsheetPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'profile',
+        element: (
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '*',
+        element: <NotFoundPage />,
+      },
+    ],
+  },
+]);
 
 const App: React.FC = () => {
-  const [currentDocumentId, setCurrentDocumentId] = useState<string | null>(
-    null
-  )
+  return <RouterProvider router={router} />;
+};
 
-  return (
-    <div className="app">
-      {currentDocumentId ? (
-        <Spreadsheet
-          documentId={currentDocumentId}
-          onBack={() => setCurrentDocumentId(null)}
-        />
-      ) : (
-        <Dashboard onOpenDocument={setCurrentDocumentId} />
-      )}
-    </div>
-  )
-}
-
-export default App
+export default App;

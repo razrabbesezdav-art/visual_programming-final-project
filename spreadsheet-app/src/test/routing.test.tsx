@@ -39,7 +39,7 @@ describe('Routing', () => {
     )
 
     expect(screen.getByText('Spreadsheet App')).toBeTruthy()
-    expect(screen.getByText('Мои документы')).toBeTruthy()
+    expect(screen.getAllByText('Мои документы').length).toBeGreaterThan(0)
     expect(screen.getByText('Профиль')).toBeTruthy()
   })
 

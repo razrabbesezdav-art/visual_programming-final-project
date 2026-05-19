@@ -18,8 +18,9 @@ export const SpreadsheetPage: React.FC = () => {
     const checkDocumentAccess = async () => {
       try {
         await documentsApi.get(documentId)
-      } catch (error: any) {
-        if (error.status === 403 || error.status === 404) {
+      } catch (error) {
+        const err = error as { status?: number; message?: string }
+        if (err.status === 403 || err.status === 404) {
           navigate('/dashboard', { replace: true })
         } else {
           console.error('Не удалось загрузить документ:', error)

@@ -1,4 +1,5 @@
 import { authApi, verifyAccessToken } from './auth'
+import { User } from '@/types/auth'
 
 let accessToken: string | null = null
 let refreshToken: string | null = null
@@ -49,9 +50,9 @@ export async function restoreSession(): Promise<{
     const userId = verifyAccessToken(newAccessToken)
     if (!userId) throw new Error('Invalid token')
 
-    const users = JSON.parse(localStorage.getItem('mock_users') || '[]')
-    const user = users.find((u: any) => u.id === userId)
-    if (!user) throw new Error('User not found')
+    const users: User[] = JSON.parse(localStorage.getItem('mock_users') || '[]')
+    const user = users.find((u) => u.id === userId)
+    if (!user) throw new Error('Пользователь не найден')
 
     setTokens(newAccessToken, storedRefresh)
     return {
@@ -59,7 +60,7 @@ export async function restoreSession(): Promise<{
       accessToken: newAccessToken,
     }
   } catch (err) {
-    console.error('Session restoration failed:', err)
+    console.error('Ошибка восстановления сессии:', err)
     clearTokens()
     return null
   }
@@ -83,7 +84,7 @@ export async function fetchWithAuth(url: string, options: RequestInit = {}) {
     } catch {
       clearTokens()
       window.location.href = '/login'
-      throw new Error('Session expired')
+      throw new Error('Сессия истекла')
     }
   }
   return response

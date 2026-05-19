@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import { configureStore } from '@reduxjs/toolkit'
 import { AppLayout } from '@/components/Layout/AppLayout'
@@ -48,14 +48,23 @@ describe('Routing', () => {
 
     render(
       <Provider store={store}>
-        <MemoryRouter>
-          <ProtectedRoute>
-            <div>Protected Content</div>
-          </ProtectedRoute>
+        <MemoryRouter initialEntries={['/protected']}>
+          <Routes>
+            <Route path="/login" element={<div>Login Page</div>} />
+            <Route
+              path="/protected"
+              element={
+                <ProtectedRoute>
+                  <div>Protected Content</div>
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
         </MemoryRouter>
       </Provider>
     )
 
+    expect(screen.getByText('Login Page')).toBeTruthy()
     expect(screen.queryByText('Protected Content')).toBeNull()
   })
 })

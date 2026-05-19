@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { Provider } from 'react-redux'
@@ -46,7 +46,7 @@ describe('Routing', () => {
   it('should protect routes when not authenticated', () => {
     const store = createTestStore(false)
 
-    const { container } = render(
+    render(
       <Provider store={store}>
         <MemoryRouter>
           <ProtectedRoute>
@@ -56,7 +56,6 @@ describe('Routing', () => {
       </Provider>
     )
 
-    // Should redirect to login
     expect(screen.queryByText('Protected Content')).toBeNull()
   })
 })

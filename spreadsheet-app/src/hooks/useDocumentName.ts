@@ -10,7 +10,7 @@ export function useDocumentName(documentId: string | undefined): string {
     if (!documentId) return
     const doc = documents.find((d) => d.id === documentId)
     if (doc) {
-      setName(doc.name)
+      setTimeout(() => setName(doc.name), 0)
     } else {
       documentsApi
         .get(documentId)

@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React from 'react'
+import { Link } from 'react-router-dom'
 
 export const NotFoundPage: React.FC = () => {
   return (
@@ -10,5 +10,5 @@ export const NotFoundPage: React.FC = () => {
         Вернуться к документам
       </Link>
     </div>
-  );
-};
+  )
+}

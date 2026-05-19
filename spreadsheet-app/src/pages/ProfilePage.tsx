@@ -1,9 +1,9 @@
-import React from 'react';
-import { useAppSelector } from '@/store/hooks';
+import React from 'react'
+import { useAppSelector } from '@/store/hooks'
 
 export const ProfilePage: React.FC = () => {
-  const user = useAppSelector(state => state.auth);
-  
+  const user = useAppSelector((state) => state.auth)
+
   return (
     <div className="profile-page">
       <h1>Профиль пользователя</h1>
@@ -12,5 +12,5 @@ export const ProfilePage: React.FC = () => {
         <p>Статус: {user.isAuthenticated ? 'Авторизован' : 'Не авторизован'}</p>
       </div>
     </div>
-  );
-};
+  )
+}

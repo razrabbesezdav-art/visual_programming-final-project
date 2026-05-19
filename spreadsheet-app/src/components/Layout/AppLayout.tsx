@@ -1,11 +1,11 @@
-import React from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
-import { Breadcrumbs } from './Breadcrumbs';
-import './AppLayout.css';
+import React from 'react'
+import { Outlet, Link, useLocation } from 'react-router-dom'
+import { Breadcrumbs } from './Breadcrumbs'
+import './AppLayout.css'
 
 export const AppLayout: React.FC = () => {
-  const location = useLocation();
-  
+  const location = useLocation()
+
   return (
     <div className="app-layout">
       <header className="app-header">
@@ -16,24 +16,24 @@ export const AppLayout: React.FC = () => {
           <Breadcrumbs />
         </div>
         <nav className="header-nav">
-          <Link 
-            to="/dashboard" 
+          <Link
+            to="/dashboard"
             className={location.pathname === '/dashboard' ? 'active' : ''}
           >
             Мои документы
           </Link>
-          <Link 
-            to="/profile" 
+          <Link
+            to="/profile"
             className={location.pathname === '/profile' ? 'active' : ''}
           >
             Профиль
           </Link>
         </nav>
       </header>
-      
+
       <main className="app-content">
         <Outlet />
       </main>
     </div>
-  );
-};
+  )
+}

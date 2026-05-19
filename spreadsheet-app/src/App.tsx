@@ -1,11 +1,11 @@
-import React from 'react';
-import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
-import { AppLayout } from '@/components/Layout/AppLayout';
-import { ProtectedRoute } from '@/components/Auth/ProtectedRoute';
-import { DashboardPage } from '@/pages/DashboardPage';
-import { SpreadsheetPage } from '@/pages/SpreadsheetPage';
-import { ProfilePage } from '@/pages/ProfilePage';
-import { NotFoundPage } from '@/pages/NotFoundPage';
+import React from 'react'
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
+import { AppLayout } from '@/components/Layout/AppLayout'
+import { ProtectedRoute } from '@/components/Auth/ProtectedRoute'
+import { DashboardPage } from '@/pages/DashboardPage'
+import { SpreadsheetPage } from '@/pages/SpreadsheetPage'
+import { ProfilePage } from '@/pages/ProfilePage'
+import { NotFoundPage } from '@/pages/NotFoundPage'
 
 const router = createBrowserRouter([
   {
@@ -46,10 +46,10 @@ const router = createBrowserRouter([
       },
     ],
   },
-]);
+])
 
 const App: React.FC = () => {
-  return <RouterProvider router={router} />;
-};
+  return <RouterProvider router={router} />
+}
 
-export default App;
+export default App

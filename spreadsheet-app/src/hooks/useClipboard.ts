@@ -21,7 +21,6 @@ export function useClipboard() {
     if (!range) return
 
     const values = getRangeValues(cells, range)
-    const styles = getRangeStyles(cells, range)
 
     dispatch(copyRange(range))
 

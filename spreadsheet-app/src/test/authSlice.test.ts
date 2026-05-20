@@ -23,7 +23,7 @@ describe('authSlice', () => {
     const user = { id: '123', email: 'test@example.com', name: 'Test User' }
     const accessToken = 'fake-token'
     let state = authReducer(undefined, setCredentials({ user, accessToken }))
-    state = authReducer(state, logout())
+    state = authReducer(state, logout.fulfilled(undefined, 'logout', undefined))
     expect(state.user).toBeNull()
     expect(state.accessToken).toBeNull()
     expect(state.isAuthenticated).toBe(false)

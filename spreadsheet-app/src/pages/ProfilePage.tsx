@@ -29,6 +29,7 @@ export const ProfilePage: React.FC = () => {
 
   useEffect(() => {
     if (user) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setNewName(user.name)
     }
   }, [user])
@@ -40,8 +41,8 @@ export const ProfilePage: React.FC = () => {
   }, [user, dispatch])
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (error) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setMessage({ type: 'error', text: error })
       dispatch(clearError())
       setTimeout(() => setMessage(null), 3000)

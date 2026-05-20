@@ -16,11 +16,15 @@ const createTestStore = (isAuthenticated = true) => {
         user: { id: 'test-user', email: 'test@example.com', name: 'Test User' },
         accessToken: 'valid-token',
         isAuthenticated: true,
+        loading: false,
+        error: null,
       }
     : {
         user: null,
         accessToken: null,
         isAuthenticated: false,
+        loading: false,
+        error: null,
       }
 
   return configureStore({

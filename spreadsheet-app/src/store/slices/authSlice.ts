@@ -86,7 +86,7 @@ export const updateProfile = createAsyncThunk(
     localStorage.setItem('user', JSON.stringify(updatedUser))
 
     const users = JSON.parse(localStorage.getItem('mock_users') || '[]')
-    const userIndex = users.findIndex((u: any) => u.id === currentUser.id)
+    const userIndex = users.findIndex((u: User) => u.id === currentUser.id)
     if (userIndex !== -1) {
       users[userIndex] = {
         ...users[userIndex],
@@ -115,7 +115,7 @@ export const changePassword = createAsyncThunk(
 
     const currentUser = JSON.parse(userStr)
     const users = JSON.parse(localStorage.getItem('mock_users') || '[]')
-    const userIndex = users.findIndex((u: any) => u.id === currentUser.id)
+    const userIndex = users.findIndex((u: User) => u.id === currentUser.id)
 
     if (userIndex === -1) {
       throw new Error('Пользователь не найден в базе')

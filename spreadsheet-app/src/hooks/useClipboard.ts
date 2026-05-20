@@ -5,7 +5,7 @@ import {
   pasteRange,
   cutRange,
 } from '@/store/slices/spreadsheetSlice'
-import { Position, CellRange, ClipboardData } from '@/types'
+import { ClipboardData } from '@/types'
 import { getRangeValues, getRangeStyles } from '@/utils/selectionUtils'
 
 export function useClipboard() {
@@ -22,12 +22,6 @@ export function useClipboard() {
 
     const values = getRangeValues(cells, range)
     const styles = getRangeStyles(cells, range)
-
-    const clipboardData: ClipboardData = {
-      values,
-      styles,
-      range: { rows: values.length, cols: values[0]?.length || 0 },
-    }
 
     dispatch(copyRange(range))
 

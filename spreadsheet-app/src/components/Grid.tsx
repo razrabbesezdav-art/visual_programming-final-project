@@ -2,6 +2,7 @@ import React, { useCallback, useRef, useState, useEffect, useMemo } from 'react'
 import { Cell } from './Cell'
 import { toCellId, isInRange } from '@/utils/cellUtils'
 import { SpreadsheetStore, Position, CellRange } from '@/types'
+import { CellData, CellStyle } from '@/types'
 
 interface GridProps {
   store: SpreadsheetStore
@@ -130,7 +131,11 @@ export const Grid: React.FC<GridProps> = ({
 
   // Форматирование значения для отображения с учётом стилей
   const getFormattedValue = useCallback(
-    (cellData: any, cellStyle: any, rawValue: string): string => {
+    (
+      cellData: CellData | undefined,
+      cellStyle: CellStyle | undefined,
+      rawValue: string
+    ): string => {
       if (!rawValue) return ''
 
       if (cellStyle?.numberFormat && cellStyle.numberFormat !== 'number') {

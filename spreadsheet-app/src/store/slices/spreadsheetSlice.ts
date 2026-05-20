@@ -439,7 +439,7 @@ const spreadshetSlice = createSlice({
       for (const pos of action.payload) {
         const id = toCellId(pos.row, pos.col)
         if (state.cells[id]) {
-          const { style, ...rest } = state.cells[id]
+          const { style: _ignored, ...rest } = state.cells[id]
           state.cells[id] = rest
         }
       }
@@ -448,7 +448,9 @@ const spreadshetSlice = createSlice({
       state.future = []
     },
 
-    copyRange(state, action: PayloadAction<CellRange>) {},
+    copyRange(state, action: PayloadAction<CellRange>) {
+      //необходимая вещь
+    },
 
     pasteRange(
       state,

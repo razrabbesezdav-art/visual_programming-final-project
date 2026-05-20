@@ -40,6 +40,7 @@ export const ProfilePage: React.FC = () => {
   }, [user, dispatch])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (error) {
       setMessage({ type: 'error', text: error })
       dispatch(clearError())

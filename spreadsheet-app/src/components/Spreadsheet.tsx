@@ -51,9 +51,6 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
   const dispatch = useAppDispatch()
   const store = useAppSelector((state) => state.spreadsheet)
   const saveStatus = useAppSelector((state) => state.ui.saveStatus)
-  const hasUnsavedChanges = useAppSelector(
-    (state) => state.ui.hasUnsavedChanges
-  )
   const [documentName, setDocumentName] = React.useState('')
   const [showExportMenu, setShowExportMenu] = React.useState(false)
 

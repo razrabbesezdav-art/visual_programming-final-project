@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react'
 import { useAppSelector, useAppDispatch } from '@/store/hooks'
 import { updateCellStyle } from '@/store/slices/spreadsheetSlice'
-import { Position, CellStyle } from '@/types'
+import { CellStyle } from '@/types'
 import { toCellId } from '@/utils/cellUtils'
 import { getSelectedPositions } from '@/utils/selectionUtils'
 import './FormattingToolbar.css'
@@ -143,7 +143,15 @@ export const FormattingToolbar: React.FC = () => {
         <select
           className="toolbar-select"
           value={currentStyle.numberFormat || 'number'}
-          onChange={(e) => applyStyle({ numberFormat: e.target.value as any })}
+          onChange={(e) =>
+            applyStyle({
+              numberFormat: e.target.value as
+                | 'number'
+                | 'percent'
+                | 'currency'
+                | 'date',
+            })
+          }
           title="Числовой формат"
         >
           <option value="number">Обычное число</option>

@@ -38,7 +38,7 @@ export function getCurrentUserId(): string | null {
 }
 
 export async function restoreSession(): Promise<{
-  user: { id: string; email: string; name: string }
+  user: { id: string; email: string; name: string; createdAt?: string }
   accessToken: string
 } | null> {
   const storedRefresh = getRefreshToken()

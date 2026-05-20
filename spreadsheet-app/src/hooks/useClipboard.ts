@@ -22,7 +22,7 @@ export function useClipboard() {
 
     const values = getRangeValues(cells, range)
 
-    dispatch(copyRange(range))
+    dispatch(copyRange())
 
     try {
       const textData = values.map((row) => row.join('\t')).join('\n')

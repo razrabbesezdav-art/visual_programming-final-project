@@ -50,7 +50,12 @@ export const RegisterPage: React.FC = () => {
 
     setLoading(true)
     try {
-      const response = await authApi.register({ name, email, password, confirmPassword: '' })
+      const response = await authApi.register({
+        name,
+        email,
+        password,
+        confirmPassword: '',
+      })
       setTokens(response.accessToken, response.refreshToken)
       dispatch(
         setCredentials({

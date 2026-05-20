@@ -3,7 +3,7 @@ import { toCellId, parseCellId } from './cellUtils'
 
 type CellGetter = (cellId: string) => CellData | undefined
 
-// Получает числовое значение из ячейки, независимо от её типа
+// Получает числовое значение из ячейки
 function getNumericValue(cellId: string, getCell: CellGetter): number | null {
   const cell = getCell(cellId)
   if (!cell) return null
@@ -32,7 +32,6 @@ function getNumericValue(cellId: string, getCell: CellGetter): number | null {
     if (!isNaN(num)) return num
   }
 
-  // Если ячейка содержит boolean
   if (cell.type === 'boolean') {
     return cell.computedValue === true ? 1 : 0
   }
@@ -40,7 +39,7 @@ function getNumericValue(cellId: string, getCell: CellGetter): number | null {
   return null
 }
 
-// Получает значение из ячейки или константы (для IF)
+// Получает значение из ячейки или константы
 function resolveValue(
   val: string,
   getCell: CellGetter
@@ -155,15 +154,11 @@ function parseArgument(
 ): number | number[] | null {
   arg = arg.trim()
 
-  // Сначала проверяем диапазоны, потом отдельные значения
-
-  // 1. Проверяем диапазон ячеек (A1:B5)
   const cellRangeMatch = arg.match(/^([A-Z]+\d+):([A-Z]+\d+)$/i)
   if (cellRangeMatch) {
     return getRangeValues(cellRangeMatch[1], cellRangeMatch[2], getCell)
   }
 
-  // 2. Проверяем диапазон строк (1:5) - ДОЛЖНО БЫТЬ ПЕРЕД ПРОВЕРКОЙ КОНСТАНТ
   const rowRangeMatch = arg.match(/^(\d+):(\d+)$/)
   if (rowRangeMatch) {
     const startRow = parseInt(rowRangeMatch[1]) - 1
@@ -171,7 +166,6 @@ function parseArgument(
     return getRowRangeValues(startRow, endRow, getCell)
   }
 
-  // 3. Проверяем диапазон колонок (A:C)
   const colRangeMatch = arg.match(/^([A-Z]+):([A-Z]+)$/i)
   if (colRangeMatch) {
     const startCol = columnLetterToIndex(colRangeMatch[1])
@@ -179,12 +173,10 @@ function parseArgument(
     return getColRangeValues(startCol, endCol, getCell)
   }
 
-  // 4. Проверяем ссылку на ячейку (A1, B2, etc.)
   if (/^[A-Z]+\d+$/i.test(arg)) {
     return getNumericValue(arg, getCell)
   }
 
-  // 5. Проверяем числовую константу (только если это НЕ диапазон)
   if (/^-?\d+(\.\d+)?$/.test(arg)) {
     return parseFloat(arg)
   }
@@ -229,7 +221,6 @@ function getRowRangeValues(
   const maxRow = Math.max(startRow, endRow)
 
   const values: number[] = []
-  // Проверяем все возможные колонки A-ZZ
   for (let r = minRow; r <= maxRow; r++) {
     for (let c = 0; c < 100; c++) {
       const val = getNumericValue(toCellId(r, c), getCell)
@@ -278,7 +269,6 @@ export function evaluateFormula(
   formula: string,
   getCell: CellGetter
 ): string | number | boolean | null {
-  // Если это не формула, возвращаем как есть
   if (!formula.startsWith('=')) {
     return formula
   }
@@ -291,7 +281,7 @@ export function evaluateFormula(
     const funcName = funcMatch[1].toUpperCase()
     const argsString = funcMatch[2]
 
-    // Функция IF имеет другую структуру: IF(условие; значение_если_да; значение_если_нет)
+    // IF(условие; значение_если_да; значение_если_нет)
     if (funcName === 'IF') {
       const args = splitArguments(argsString)
       if (args.length < 2) return '#ERROR'
@@ -378,7 +368,6 @@ export function evaluateFormula(
       }
     }
 
-    // Проверяем, что выражение содержит только числа и операторы
     if (/^[\d\s+\-*/().]+$/.test(evalExpr)) {
       const result = new Function(`return (${evalExpr})`)()
       if (typeof result === 'number' && !isNaN(result) && isFinite(result)) {
@@ -389,7 +378,6 @@ export function evaluateFormula(
     return '#ERROR'
   }
 
-  // Если это ссылка на одну ячейку
   const singleRef = expr.match(/^([A-Z]+\d+)$/i)
   if (singleRef) {
     const cell = getCell(singleRef[1])
@@ -398,7 +386,6 @@ export function evaluateFormula(
     }
   }
 
-  // Если это просто число
   if (/^-?\d+(\.\d+)?$/.test(expr)) {
     return parseFloat(expr)
   }

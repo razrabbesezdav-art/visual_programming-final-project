@@ -10,7 +10,7 @@ import documentsReducer, {
 import { documentsApi } from '@/api/documents'
 import { DocumentPreview } from '@/types/documents'
 
-// Мокаем API
+// Мок API
 vi.mock('@/api/documents', () => ({
   documentsApi: {
     list: vi.fn(),

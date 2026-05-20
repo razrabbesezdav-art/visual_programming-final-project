@@ -181,7 +181,7 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
         e.stopPropagation()
         paste()
       }
-      // Delete / Backspace - очистить (только если не в инпуте)
+      // Delete / Backspace - очистить
       else if (
         (e.key === 'Delete' || e.key === 'Backspace') &&
         target.tagName !== 'INPUT' &&

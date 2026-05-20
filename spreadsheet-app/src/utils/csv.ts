@@ -83,7 +83,7 @@ function parseCSVLines(csv: string): string[][] {
       if (char === '"') {
         if (nextChar === '"') {
           currentField += '"'
-          i++ // Пропускаем следующую кавычку
+          i++
         } else {
           inQuotes = false
         }
@@ -98,7 +98,7 @@ function parseCSVLines(csv: string): string[][] {
         currentField = ''
       } else if (char === '\n' || char === '\r') {
         if (char === '\r' && nextChar === '\n') {
-          i++ // Пропускаем \n после \r
+          i++
         }
         currentLine.push(currentField)
         lines.push(currentLine)
@@ -110,7 +110,6 @@ function parseCSVLines(csv: string): string[][] {
     }
   }
 
-  // Последнее поле/строка
   if (currentField || currentLine.length > 0) {
     currentLine.push(currentField)
     lines.push(currentLine)

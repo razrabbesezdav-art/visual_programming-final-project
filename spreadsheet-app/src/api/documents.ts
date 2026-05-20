@@ -20,7 +20,7 @@ function getUserDocuments(): Document[] {
 
 function saveUserDocuments(docs: Document[]) {
   const userId = getCurrentUserId()
-  if (!userId) throw new Error('User not authenticated')
+  if (!userId) throw new Error('Пользователь не авторизован')
   localStorage.setItem(getStorageKey(userId), JSON.stringify(docs))
 }
 
@@ -134,7 +134,7 @@ export const documentsApi = {
   list: async (): Promise<DocumentPreview[]> => {
     await delay(100)
     const userId = getCurrentUserId()
-    if (!userId) throw new ApiError(401, 'Unauthorized')
+    if (!userId) throw new ApiError(401, 'Нет доступа')
     const docs = getUserDocuments()
     return docs.map((doc) => ({
       id: doc.id,
@@ -148,17 +148,17 @@ export const documentsApi = {
   get: async (id: string): Promise<Document> => {
     await delay(100)
     const userId = getCurrentUserId()
-    if (!userId) throw new ApiError(401, 'Unauthorized')
+    if (!userId) throw new ApiError(401, 'Нет доступа')
     const docs = getUserDocuments()
     const doc = docs.find((d) => d.id === id)
-    if (!doc) throw new ApiError(404, 'Document not found')
+    if (!doc) throw new ApiError(404, 'Документ не найден')
     return doc
   },
 
   create: async (data: CreateDocumentDTO): Promise<Document> => {
     await delay(200)
     const userId = getCurrentUserId()
-    if (!userId) throw new ApiError(401, 'Unauthorized')
+    if (!userId) throw new ApiError(401, 'Нет доступа')
     const docs = getUserDocuments()
     const now = new Date().toISOString()
     const newDoc: Document = {
@@ -188,12 +188,12 @@ export const documentsApi = {
   ): Promise<Document> => {
     await delay(150)
     const userId = getCurrentUserId()
-    if (!userId) throw new ApiError(401, 'Unauthorized')
+    if (!userId) throw new ApiError(401, 'Нет доступа')
     const docs = getUserDocuments()
     const index = docs.findIndex((d) => d.id === id)
-    if (index === -1) throw new ApiError(404, 'Document not found')
+    if (index === -1) throw new ApiError(404, 'Документ не найден')
     const doc = docs[index]
-    if (doc.userId !== userId) throw new ApiError(403, 'Forbidden')
+    if (doc.userId !== userId) throw new ApiError(403, 'Доступ запрещён')
 
     if (updateData.name !== undefined) doc.name = updateData.name
     if (updateData.cells) doc.cells = { ...doc.cells, ...updateData.cells }
@@ -211,11 +211,11 @@ export const documentsApi = {
   delete: async (id: string): Promise<void> => {
     await delay(100)
     const userId = getCurrentUserId()
-    if (!userId) throw new ApiError(401, 'Unauthorized')
+    if (!userId) throw new ApiError(401, 'Нет доступа')
     let docs = getUserDocuments()
     const doc = docs.find((d) => d.id === id)
-    if (!doc) throw new ApiError(404, 'Document not found')
-    if (doc.userId !== userId) throw new ApiError(403, 'Forbidden')
+    if (!doc) throw new ApiError(404, 'Документ не найден')
+    if (doc.userId !== userId) throw new ApiError(403, 'Доступ запрещён')
     docs = docs.filter((d) => d.id !== id)
     saveUserDocuments(docs)
   },
@@ -223,11 +223,11 @@ export const documentsApi = {
   duplicate: async (id: string, newName: string): Promise<Document> => {
     await delay(200)
     const userId = getCurrentUserId()
-    if (!userId) throw new ApiError(401, 'Unauthorized')
+    if (!userId) throw new ApiError(401, 'Нет доступа')
     const docs = getUserDocuments()
     const original = docs.find((d) => d.id === id)
-    if (!original) throw new ApiError(404, 'Document not found')
-    if (original.userId !== userId) throw new ApiError(403, 'Forbidden')
+    if (!original) throw new ApiError(404, 'Документ не найден')
+    if (original.userId !== userId) throw new ApiError(403, 'Доступ запрещён')
 
     const now = new Date().toISOString()
     const duplicate: Document = {
@@ -251,11 +251,11 @@ export const documentsApi = {
   ): Promise<{ content: string; filename: string }> => {
     await delay(100)
     const userId = getCurrentUserId()
-    if (!userId) throw new ApiError(401, 'Unauthorized')
+    if (!userId) throw new ApiError(401, 'Нет доступа')
     const docs = getUserDocuments()
     const doc = docs.find((d) => d.id === id)
-    if (!doc) throw new ApiError(404, 'Document not found')
-    if (doc.userId !== userId) throw new ApiError(403, 'Forbidden')
+    if (!doc) throw new ApiError(404, 'Документ не найден')
+    if (doc.userId !== userId) throw new ApiError(403, 'Доступ запрещён')
 
     const store: SpreadsheetStore = {
       cells: doc.cells,

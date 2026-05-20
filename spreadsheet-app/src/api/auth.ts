@@ -66,7 +66,7 @@ export const authApi = {
   register: async (data: RegisterData): Promise<AuthResponse> => {
     const users = getUsers()
     if (users.find((u) => u.email === data.email)) {
-      throw new Error('User with this email already exists')
+      throw new Error('Пользователь с этой эл.почтой уже зарегестрирован')
     }
 
     const newUser: User = {
@@ -104,7 +104,7 @@ export const authApi = {
         u.email === credentials.email && u.password === credentials.password
     )
     if (!user) {
-      throw new Error('Invalid email or password')
+      throw new Error('Неверная эл.почта или пароль')
     }
     const accessToken = generateAccessToken(user.id)
     const refreshToken = generateRefreshToken(user.id)
@@ -129,11 +129,11 @@ export const authApi = {
   ): Promise<{ accessToken: string }> => {
     const userId = verifyRefreshToken(refreshToken)
     if (!userId) {
-      throw new Error('Invalid or expired refresh token')
+      throw new Error('Недействительной или просроченный токен обновления')
     }
     const refreshMap = getRefreshTokenMap()
     if (refreshMap[refreshToken] !== userId) {
-      throw new Error('Refresh token not found')
+      throw new Error('Токен обновления не найден')
     }
     const newAccessToken = generateAccessToken(userId)
     return { accessToken: newAccessToken }

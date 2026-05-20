@@ -1,130 +1,145 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { logout, updateProfile, changePassword, clearError } from '@/store/slices/authSlice';
-import { fetchDocuments } from '@/store/slices/documentsSlice';
-import './ProfilePage.css';
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAppSelector, useAppDispatch } from '@/store/hooks'
+import {
+  logout,
+  updateProfile,
+  changePassword,
+  clearError,
+} from '@/store/slices/authSlice'
+import { fetchDocuments } from '@/store/slices/documentsSlice'
+import './ProfilePage.css'
 
 export const ProfilePage: React.FC = () => {
-  const { user, loading, error } = useAppSelector((state) => state.auth);
-  const { list: documents } = useAppSelector((state) => state.documents);
-  const dispatch = useAppDispatch();
-  const navigate = useNavigate();
+  const { user, loading, error } = useAppSelector((state) => state.auth)
+  const { list: documents } = useAppSelector((state) => state.documents)
+  const dispatch = useAppDispatch()
+  const navigate = useNavigate()
 
-  const [isEditingName, setIsEditingName] = useState(false);
-  const [newName, setNewName] = useState(user?.name || '');
-  const [showPasswordForm, setShowPasswordForm] = useState(false);
-  const [oldPassword, setOldPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-
-  useEffect(() => {
-    if (user) {
-      setNewName(user.name);
-    }
-  }, [user]);
+  const [isEditingName, setIsEditingName] = useState(false)
+  const [newName, setNewName] = useState(user?.name || '')
+  const [showPasswordForm, setShowPasswordForm] = useState(false)
+  const [oldPassword, setOldPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [message, setMessage] = useState<{
+    type: 'success' | 'error'
+    text: string
+  } | null>(null)
 
   useEffect(() => {
     if (user) {
-      dispatch(fetchDocuments());
+      setNewName(user.name)
     }
-  }, [user, dispatch]);
+  }, [user])
+
+  useEffect(() => {
+    if (user) {
+      dispatch(fetchDocuments())
+    }
+  }, [user, dispatch])
 
   useEffect(() => {
     if (error) {
-      setMessage({ type: 'error', text: error });
-      dispatch(clearError());
-      setTimeout(() => setMessage(null), 3000);
+      setMessage({ type: 'error', text: error })
+      dispatch(clearError())
+      setTimeout(() => setMessage(null), 3000)
     }
-  }, [error, dispatch]);
+  }, [error, dispatch])
 
   const handleUpdateName = async () => {
     if (!newName.trim()) {
-      setMessage({ type: 'error', text: 'Имя не может быть пустым' });
-      setTimeout(() => setMessage(null), 3000);
-      setIsEditingName(false);
-      return;
+      setMessage({ type: 'error', text: 'Имя не может быть пустым' })
+      setTimeout(() => setMessage(null), 3000)
+      setIsEditingName(false)
+      return
     }
-    
+
     if (newName.trim() !== user?.name) {
-      const result = await dispatch(updateProfile({ name: newName.trim() }));
-      
+      const result = await dispatch(updateProfile({ name: newName.trim() }))
+
       if (updateProfile.fulfilled.match(result)) {
-        setMessage({ type: 'success', text: 'Имя успешно обновлено' });
-        setTimeout(() => setMessage(null), 3000);
+        setMessage({ type: 'success', text: 'Имя успешно обновлено' })
+        setTimeout(() => setMessage(null), 3000)
       } else {
-        const errorMsg = (result as { error?: { message?: string } }).error?.message || 'Ошибка обновления имени';
-        setMessage({ type: 'error', text: errorMsg });
-        setTimeout(() => setMessage(null), 3000);
+        const errorMsg =
+          (result as { error?: { message?: string } }).error?.message ||
+          'Ошибка обновления имени'
+        setMessage({ type: 'error', text: errorMsg })
+        setTimeout(() => setMessage(null), 3000)
       }
     }
-    setIsEditingName(false);
-  };
+    setIsEditingName(false)
+  }
 
   const handleChangePassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+    e.preventDefault()
+
     if (newPassword !== confirmPassword) {
-      setMessage({ type: 'error', text: 'Пароли не совпадают' });
-      setTimeout(() => setMessage(null), 3000);
-      return;
+      setMessage({ type: 'error', text: 'Пароли не совпадают' })
+      setTimeout(() => setMessage(null), 3000)
+      return
     }
     if (newPassword.length < 8) {
-      setMessage({ type: 'error', text: 'Пароль должен быть минимум 8 символов' });
-      setTimeout(() => setMessage(null), 3000);
-      return;
+      setMessage({
+        type: 'error',
+        text: 'Пароль должен быть минимум 8 символов',
+      })
+      setTimeout(() => setMessage(null), 3000)
+      return
     }
-    
-    const result = await dispatch(changePassword({ oldPassword, newPassword }));
+
+    const result = await dispatch(changePassword({ oldPassword, newPassword }))
     if (changePassword.fulfilled.match(result)) {
-      setMessage({ type: 'success', text: 'Пароль успешно изменён' });
-      setShowPasswordForm(false);
-      setOldPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
-      setTimeout(() => setMessage(null), 3000);
+      setMessage({ type: 'success', text: 'Пароль успешно изменён' })
+      setShowPasswordForm(false)
+      setOldPassword('')
+      setNewPassword('')
+      setConfirmPassword('')
+      setTimeout(() => setMessage(null), 3000)
     } else {
-      const errorMsg = (result as { error?: { message?: string } }).error?.message || 'Ошибка смены пароля';
-      setMessage({ type: 'error', text: errorMsg });
-      setTimeout(() => setMessage(null), 3000);
+      const errorMsg =
+        (result as { error?: { message?: string } }).error?.message ||
+        'Ошибка смены пароля'
+      setMessage({ type: 'error', text: errorMsg })
+      setTimeout(() => setMessage(null), 3000)
     }
-  };
+  }
 
   const handleLogout = async () => {
-    await dispatch(logout());
-    navigate('/login', { replace: true });
-  };
+    await dispatch(logout())
+    navigate('/login', { replace: true })
+  }
 
   if (!user) {
-    return <div className="profile-loading">Загрузка...</div>;
+    return <div className="profile-loading">Загрузка...</div>
   }
 
   const totalFilledCells = documents.reduce((sum, doc) => {
-    const preview = doc.preview || [];
-    let filled = 0;
+    const preview = doc.preview || []
+    let filled = 0
     for (const row of preview) {
       for (const cell of row) {
-        if (cell && cell.trim()) filled++;
+        if (cell && cell.trim()) filled++
       }
     }
-    return sum + filled;
-  }, 0);
+    return sum + filled
+  }, 0)
 
   const formatDate = (dateString: string | undefined) => {
     if (!dateString) {
-      return 'Дата не указана';
+      return 'Дата не указана'
     }
     try {
-      const date = new Date(dateString);
+      const date = new Date(dateString)
       if (isNaN(date.getTime())) {
-        return 'Дата не указана';
+        return 'Дата не указана'
       }
-      return date.toLocaleDateString('ru-RU');
+      return date.toLocaleDateString('ru-RU')
     } catch {
-      return 'Дата не указана';
+      return 'Дата не указана'
     }
-  };
+  }
 
   return (
     <div className="profile-page">
@@ -133,15 +148,13 @@ export const ProfilePage: React.FC = () => {
       </div>
 
       {message && (
-        <div className={`profile-message ${message.type}`}>
-          {message.text}
-        </div>
+        <div className={`profile-message ${message.type}`}>{message.text}</div>
       )}
 
       <div className="profile-card">
         <div className="profile-section">
           <h2>Личная информация</h2>
-          
+
           <div className="profile-field">
             <label>Имя:</label>
             {isEditingName ? (
@@ -152,11 +165,11 @@ export const ProfilePage: React.FC = () => {
                   onChange={(e) => setNewName(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleUpdateName();
+                      e.preventDefault()
+                      handleUpdateName()
                     } else if (e.key === 'Escape') {
-                      setNewName(user?.name || '');
-                      setIsEditingName(false);
+                      setNewName(user?.name || '')
+                      setIsEditingName(false)
                     }
                   }}
                   autoFocus
@@ -166,8 +179,8 @@ export const ProfilePage: React.FC = () => {
                 </button>
                 <button
                   onClick={() => {
-                    setNewName(user?.name || '');
-                    setIsEditingName(false);
+                    setNewName(user?.name || '')
+                    setIsEditingName(false)
                   }}
                   className="cancel-btn"
                 >
@@ -177,7 +190,10 @@ export const ProfilePage: React.FC = () => {
             ) : (
               <div className="field-value">
                 <span>{user.name}</span>
-                <button onClick={() => setIsEditingName(true)} className="edit-btn">
+                <button
+                  onClick={() => setIsEditingName(true)}
+                  className="edit-btn"
+                >
                   Изменить
                 </button>
               </div>
@@ -216,7 +232,10 @@ export const ProfilePage: React.FC = () => {
         <div className="profile-section">
           <h2>Безопасность</h2>
           {!showPasswordForm ? (
-            <button onClick={() => setShowPasswordForm(true)} className="btn-secondary">
+            <button
+              onClick={() => setShowPasswordForm(true)}
+              className="btn-secondary"
+            >
               Сменить пароль
             </button>
           ) : (
@@ -250,7 +269,10 @@ export const ProfilePage: React.FC = () => {
                 />
               </div>
               <div className="form-actions">
-                <button type="button" onClick={() => setShowPasswordForm(false)}>
+                <button
+                  type="button"
+                  onClick={() => setShowPasswordForm(false)}
+                >
                   Отмена
                 </button>
                 <button type="submit" disabled={loading}>
@@ -268,5 +290,5 @@ export const ProfilePage: React.FC = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}

@@ -41,7 +41,10 @@ function getNumericValue(cellId: string, getCell: CellGetter): number | null {
 }
 
 // Получает значение из ячейки или константы (для IF)
-function resolveValue(val: string, getCell: CellGetter): number | string | null {
+function resolveValue(
+  val: string,
+  getCell: CellGetter
+): number | string | null {
   val = val.trim()
 
   const cellMatch = val.match(/^([A-Z]+\d+)$/i)
@@ -80,20 +83,36 @@ function evaluateCondition(condition: string, getCell: CellGetter): boolean {
 
       if (leftVal === null || rightVal === null) return false
 
-      const leftNum = typeof leftVal === 'string' ? parseFloat(leftVal) : leftVal
-      const rightNum = typeof rightVal === 'string' ? parseFloat(rightVal) : rightVal
+      const leftNum =
+        typeof leftVal === 'string' ? parseFloat(leftVal) : leftVal
+      const rightNum =
+        typeof rightVal === 'string' ? parseFloat(rightVal) : rightVal
       const isNumeric = !isNaN(leftNum) && !isNaN(rightNum)
 
       const left = isNumeric ? leftNum : leftVal
       const right = isNumeric ? rightNum : rightVal
 
       switch (op) {
-        case '=': return left === right
-        case '<>': return left !== right
-        case '>':  return typeof left === 'number' && typeof right === 'number' ? left > right : String(left) > String(right)
-        case '<':  return typeof left === 'number' && typeof right === 'number' ? left < right : String(left) < String(right)
-        case '>=': return typeof left === 'number' && typeof right === 'number' ? left >= right : String(left) >= String(right)
-        case '<=': return typeof left === 'number' && typeof right === 'number' ? left <= right : String(left) <= String(right)
+        case '=':
+          return left === right
+        case '<>':
+          return left !== right
+        case '>':
+          return typeof left === 'number' && typeof right === 'number'
+            ? left > right
+            : String(left) > String(right)
+        case '<':
+          return typeof left === 'number' && typeof right === 'number'
+            ? left < right
+            : String(left) < String(right)
+        case '>=':
+          return typeof left === 'number' && typeof right === 'number'
+            ? left >= right
+            : String(left) >= String(right)
+        case '<=':
+          return typeof left === 'number' && typeof right === 'number'
+            ? left <= right
+            : String(left) <= String(right)
       }
     }
   }

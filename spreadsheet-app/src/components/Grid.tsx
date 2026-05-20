@@ -129,26 +129,29 @@ export const Grid: React.FC<GridProps> = ({
   )
 
   // Форматирование значения для отображения с учётом стилей
-  const getFormattedValue = useCallback((cellData: any, cellStyle: any, rawValue: string): string => {
-    if (!rawValue) return ''
-    
-    if (cellStyle?.numberFormat && cellStyle.numberFormat !== 'number') {
-      const num = parseFloat(rawValue)
-      if (!isNaN(num)) {
-        switch (cellStyle.numberFormat) {
-          case 'percent':
-            return `${(num * 100).toFixed(2)}%`
-          case 'currency':
-            return `$${num.toFixed(2)}`
-          case 'date':
-            return new Date(num).toLocaleDateString()
-          default:
-            return rawValue
+  const getFormattedValue = useCallback(
+    (cellData: any, cellStyle: any, rawValue: string): string => {
+      if (!rawValue) return ''
+
+      if (cellStyle?.numberFormat && cellStyle.numberFormat !== 'number') {
+        const num = parseFloat(rawValue)
+        if (!isNaN(num)) {
+          switch (cellStyle.numberFormat) {
+            case 'percent':
+              return `${(num * 100).toFixed(2)}%`
+            case 'currency':
+              return `$${num.toFixed(2)}`
+            case 'date':
+              return new Date(num).toLocaleDateString()
+            default:
+              return rawValue
+          }
         }
       }
-    }
-    return cellData?.displayValue || rawValue || ''
-  }, [])
+      return cellData?.displayValue || rawValue || ''
+    },
+    []
+  )
 
   return (
     <div
@@ -172,7 +175,11 @@ export const Grid: React.FC<GridProps> = ({
             const id = toCellId(row, col)
             const cellData = store.cells[id]
             const cellStyle = cellData?.style
-            const formattedValue = getFormattedValue(cellData, cellStyle, cellData?.rawValue || '')
+            const formattedValue = getFormattedValue(
+              cellData,
+              cellStyle,
+              cellData?.rawValue || ''
+            )
             const isSelected =
               selectedCell?.row === row && selectedCell?.col === col
             const isEditing =

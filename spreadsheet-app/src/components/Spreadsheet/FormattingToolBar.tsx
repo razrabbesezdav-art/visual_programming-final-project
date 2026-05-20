@@ -1,10 +1,10 @@
-import React, { useCallback } from 'react';
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { updateCellStyle } from '@/store/slices/spreadsheetSlice';
-import { Position, CellStyle } from '@/types';
-import { toCellId } from '@/utils/cellUtils';
-import { getSelectedPositions } from '@/utils/selectionUtils';
-import './FormattingToolbar.css';
+import React, { useCallback } from 'react'
+import { useAppSelector, useAppDispatch } from '@/store/hooks'
+import { updateCellStyle } from '@/store/slices/spreadsheetSlice'
+import { Position, CellStyle } from '@/types'
+import { toCellId } from '@/utils/cellUtils'
+import { getSelectedPositions } from '@/utils/selectionUtils'
+import './FormattingToolbar.css'
 
 const COLOR_PALETTE = [
   { name: 'Белый', value: '#ffffff' },
@@ -12,7 +12,7 @@ const COLOR_PALETTE = [
   { name: 'Синий', value: '#2196f3' },
   { name: 'Красный', value: '#f44336' },
   { name: 'Зелёный', value: '#4caf50' },
-];
+]
 
 const TEXT_COLORS = [
   { name: 'Чёрный', value: '#000000' },
@@ -20,35 +20,35 @@ const TEXT_COLORS = [
   { name: 'Синий', value: '#2196f3' },
   { name: 'Красный', value: '#f44336' },
   { name: 'Зелёный', value: '#4caf50' },
-];
+]
 
 export const FormattingToolbar: React.FC = () => {
-  const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch()
   const { selectedCell, selectedRange, cells } = useAppSelector(
     (state) => state.spreadsheet
-  );
+  )
 
   const getCurrentStyle = useCallback((): Partial<CellStyle> => {
-    const positions = getSelectedPositions(selectedCell, selectedRange);
-    if (positions.length === 0) return {};
-    const firstPos = positions[0];
-    const cellId = toCellId(firstPos.row, firstPos.col);
-    const firstCell = cells[cellId];
-    
-    return firstCell?.style || {};
-    }, [selectedCell, selectedRange, cells]);
+    const positions = getSelectedPositions(selectedCell, selectedRange)
+    if (positions.length === 0) return {}
+    const firstPos = positions[0]
+    const cellId = toCellId(firstPos.row, firstPos.col)
+    const firstCell = cells[cellId]
+
+    return firstCell?.style || {}
+  }, [selectedCell, selectedRange, cells])
 
   const applyStyle = useCallback(
     (style: Partial<CellStyle>) => {
-      const positions = getSelectedPositions(selectedCell, selectedRange);
-      if (positions.length === 0) return;
-      
-      dispatch(updateCellStyle({ positions, style }));
+      const positions = getSelectedPositions(selectedCell, selectedRange)
+      if (positions.length === 0) return
+
+      dispatch(updateCellStyle({ positions, style }))
     },
     [dispatch, selectedCell, selectedRange]
-  );
+  )
 
-  const currentStyle = getCurrentStyle();
+  const currentStyle = getCurrentStyle()
 
   return (
     <div className="formatting-toolbar">
@@ -83,7 +83,9 @@ export const FormattingToolbar: React.FC = () => {
           className="toolbar-select"
           value={currentStyle.textAlign || 'left'}
           onChange={(e) =>
-            applyStyle({ textAlign: e.target.value as 'left' | 'center' | 'right' })
+            applyStyle({
+              textAlign: e.target.value as 'left' | 'center' | 'right',
+            })
           }
           title="Выравнивание"
         >
@@ -103,7 +105,10 @@ export const FormattingToolbar: React.FC = () => {
               <button
                 key={color.value}
                 className={`color-btn ${currentStyle.backgroundColor === color.value ? 'active' : ''}`}
-                style={{ backgroundColor: color.value, border: color.value === '#ffffff' ? '1px solid #ccc' : 'none' }}
+                style={{
+                  backgroundColor: color.value,
+                  border: color.value === '#ffffff' ? '1px solid #ccc' : 'none',
+                }}
                 onClick={() => applyStyle({ backgroundColor: color.value })}
                 title={color.name}
               />
@@ -120,7 +125,10 @@ export const FormattingToolbar: React.FC = () => {
               <button
                 key={color.value}
                 className={`color-btn ${currentStyle.textColor === color.value ? 'active' : ''}`}
-                style={{ backgroundColor: color.value, border: color.value === '#ffffff' ? '1px solid #ccc' : 'none' }}
+                style={{
+                  backgroundColor: color.value,
+                  border: color.value === '#ffffff' ? '1px solid #ccc' : 'none',
+                }}
                 onClick={() => applyStyle({ textColor: color.value })}
                 title={color.name}
               />
@@ -135,9 +143,7 @@ export const FormattingToolbar: React.FC = () => {
         <select
           className="toolbar-select"
           value={currentStyle.numberFormat || 'number'}
-          onChange={(e) =>
-            applyStyle({ numberFormat: e.target.value as any })
-          }
+          onChange={(e) => applyStyle({ numberFormat: e.target.value as any })}
           title="Числовой формат"
         >
           <option value="number">Обычное число</option>
@@ -147,5 +153,5 @@ export const FormattingToolbar: React.FC = () => {
         </select>
       </div>
     </div>
-  );
-};
+  )
+}

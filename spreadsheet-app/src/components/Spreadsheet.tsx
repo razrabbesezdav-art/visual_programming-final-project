@@ -117,139 +117,197 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
 
   // Горячие клавиши
   useEffect(() => {
-  const handleKeyDown = (e: KeyboardEvent) => {
-    // Игнорируем, если активен input или textarea
-    const target = e.target as HTMLElement;
-    if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
-      const isCtrl = e.ctrlKey || e.metaKey;
-      if (!(isCtrl && (e.key === 's' || e.key === 'z' || e.key === 'y' || e.key === 'c' || e.key === 'v' || e.key === 'x' || e.key === 'b' || e.key === 'i' || e.key === 'u'))) {
-        return;
-      }
-    }
-    
-    const isCtrl = e.ctrlKey || e.metaKey;
-    
-    // Ctrl+S - сохранить
-    if (isCtrl && e.key === 's') {
-      e.preventDefault();
-      e.stopPropagation();
-      handleManualSave();
-    }
-    // Ctrl+Z - Undo
-    else if (isCtrl && e.key === 'z' && !e.shiftKey) {
-      e.preventDefault();
-      e.stopPropagation();
-      dispatch(undo());
-    }
-    // Ctrl+Y или Ctrl+Shift+Z - Redo
-    else if ((isCtrl && e.key === 'y') || (isCtrl && e.shiftKey && e.key === 'Z')) {
-      e.preventDefault();
-      e.stopPropagation();
-      dispatch(redo());
-    }
-    // Ctrl+C - копировать
-    else if (isCtrl && e.key === 'c') {
-      e.preventDefault();
-      e.stopPropagation();
-      copy();
-    }
-    // Ctrl+X - вырезать
-    else if (isCtrl && e.key === 'x') {
-      e.preventDefault();
-      e.stopPropagation();
-      cut();
-    }
-    // Ctrl+V - вставить
-    else if (isCtrl && e.key === 'v') {
-      e.preventDefault();
-      e.stopPropagation();
-      paste();
-    }
-    // Delete / Backspace - очистить (только если не в инпуте)
-    else if ((e.key === 'Delete' || e.key === 'Backspace') && target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA') {
-      e.preventDefault();
-      e.stopPropagation();
-      const positions = getSelectedPositions(store.selectedCell, store.selectedRange);
-      if (positions.length > 0) {
-        dispatch(pushHistory());
-        dispatch(clearCells(positions));
-      }
-    }
-    // Ctrl+A - выделить всё
-    else if (isCtrl && e.key === 'a' && target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA') {
-      e.preventDefault();
-      e.stopPropagation();
-      dispatch(selectAll());
-    }
-    // Ctrl+B - жирный
-    else if (isCtrl && e.key === 'b') {
-      e.preventDefault();
-      e.stopPropagation();
-      const positions = getSelectedPositions(store.selectedCell, store.selectedRange);
-      if (positions.length > 0) {
-        const firstId = toCellId(positions[0].row, positions[0].col);
-        const firstCell = store.cells[firstId];
-        const isBold = firstCell?.style?.bold || false;
-        dispatch(updateCellStyle({ positions, style: { bold: !isBold } }));
-      }
-    }
-    // Ctrl+I - курсив
-    else if (isCtrl && e.key === 'i') {
-      e.preventDefault();
-      e.stopPropagation();
-      const positions = getSelectedPositions(store.selectedCell, store.selectedRange);
-      if (positions.length > 0) {
-        const firstId = toCellId(positions[0].row, positions[0].col);
-        const firstCell = store.cells[firstId];
-        const isItalic = firstCell?.style?.italic || false;
-        dispatch(updateCellStyle({ positions, style: { italic: !isItalic } }));
-      }
-    }
-    // Ctrl+U - подчёркивание
-    else if (isCtrl && e.key === 'u') {
-      e.preventDefault();
-      e.stopPropagation();
-      const positions = getSelectedPositions(store.selectedCell, store.selectedRange);
-      if (positions.length > 0) {
-        const firstId = toCellId(positions[0].row, positions[0].col);
-        const firstCell = store.cells[firstId];
-        const isUnderline = firstCell?.style?.underline || false;
-        dispatch(updateCellStyle({ positions, style: { underline: !isUnderline } }));
-      }
-    }
-    // Tab - навигация вправо
-    else if (e.key === 'Tab' && !isCtrl && !store.editingCell && target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA') {
-      e.preventDefault();
-      e.stopPropagation();
-      if (store.selectedCell) {
-        const newCol = store.selectedCell.col + 1;
-        if (newCol < store.colCount) {
-          dispatch(setSelectedCell({ row: store.selectedCell.row, col: newCol }));
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement
+      if (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable
+      ) {
+        const isCtrl = e.ctrlKey || e.metaKey
+        if (
+          !(
+            isCtrl &&
+            (e.key === 's' ||
+              e.key === 'z' ||
+              e.key === 'y' ||
+              e.key === 'c' ||
+              e.key === 'v' ||
+              e.key === 'x' ||
+              e.key === 'b' ||
+              e.key === 'i' ||
+              e.key === 'u')
+          )
+        ) {
+          return
         }
       }
-    }
-    // Enter - переход на следующую строку
-    else if (e.key === 'Enter' && !isCtrl && !store.editingCell && target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA') {
-      e.preventDefault();
-      e.stopPropagation();
-      if (store.selectedCell) {
-        const newRow = store.selectedCell.row + 1;
-        if (newRow < store.rowCount) {
-          dispatch(setSelectedCell({ row: newRow, col: store.selectedCell.col }));
-        }
-      }
-    }
-    // Escape - отмена редактирования
-    else if (e.key === 'Escape' && store.editingCell) {
-      e.preventDefault();
-      e.stopPropagation();
-      dispatch(setEditingCell(null));
-    }
-  };
 
-  window.addEventListener('keydown', handleKeyDown);
-  return () => window.removeEventListener('keydown', handleKeyDown);
-}, [dispatch, store, handleManualSave, copy, cut, paste]);
+      const isCtrl = e.ctrlKey || e.metaKey
+
+      // Ctrl+S - сохранить
+      if (isCtrl && e.key === 's') {
+        e.preventDefault()
+        e.stopPropagation()
+        handleManualSave()
+      }
+      // Ctrl+Z - Undo
+      else if (isCtrl && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault()
+        e.stopPropagation()
+        dispatch(undo())
+      }
+      // Ctrl+Y или Ctrl+Shift+Z - Redo
+      else if (
+        (isCtrl && e.key === 'y') ||
+        (isCtrl && e.shiftKey && e.key === 'Z')
+      ) {
+        e.preventDefault()
+        e.stopPropagation()
+        dispatch(redo())
+      }
+      // Ctrl+C - копировать
+      else if (isCtrl && e.key === 'c') {
+        e.preventDefault()
+        e.stopPropagation()
+        copy()
+      }
+      // Ctrl+X - вырезать
+      else if (isCtrl && e.key === 'x') {
+        e.preventDefault()
+        e.stopPropagation()
+        cut()
+      }
+      // Ctrl+V - вставить
+      else if (isCtrl && e.key === 'v') {
+        e.preventDefault()
+        e.stopPropagation()
+        paste()
+      }
+      // Delete / Backspace - очистить (только если не в инпуте)
+      else if (
+        (e.key === 'Delete' || e.key === 'Backspace') &&
+        target.tagName !== 'INPUT' &&
+        target.tagName !== 'TEXTAREA'
+      ) {
+        e.preventDefault()
+        e.stopPropagation()
+        const positions = getSelectedPositions(
+          store.selectedCell,
+          store.selectedRange
+        )
+        if (positions.length > 0) {
+          dispatch(pushHistory())
+          dispatch(clearCells(positions))
+        }
+      }
+      // Ctrl+A - выделить всё
+      else if (
+        isCtrl &&
+        e.key === 'a' &&
+        target.tagName !== 'INPUT' &&
+        target.tagName !== 'TEXTAREA'
+      ) {
+        e.preventDefault()
+        e.stopPropagation()
+        dispatch(selectAll())
+      }
+      // Ctrl+B - жирный
+      else if (isCtrl && e.key === 'b') {
+        e.preventDefault()
+        e.stopPropagation()
+        const positions = getSelectedPositions(
+          store.selectedCell,
+          store.selectedRange
+        )
+        if (positions.length > 0) {
+          const firstId = toCellId(positions[0].row, positions[0].col)
+          const firstCell = store.cells[firstId]
+          const isBold = firstCell?.style?.bold || false
+          dispatch(updateCellStyle({ positions, style: { bold: !isBold } }))
+        }
+      }
+      // Ctrl+I - курсив
+      else if (isCtrl && e.key === 'i') {
+        e.preventDefault()
+        e.stopPropagation()
+        const positions = getSelectedPositions(
+          store.selectedCell,
+          store.selectedRange
+        )
+        if (positions.length > 0) {
+          const firstId = toCellId(positions[0].row, positions[0].col)
+          const firstCell = store.cells[firstId]
+          const isItalic = firstCell?.style?.italic || false
+          dispatch(updateCellStyle({ positions, style: { italic: !isItalic } }))
+        }
+      }
+      // Ctrl+U - подчёркивание
+      else if (isCtrl && e.key === 'u') {
+        e.preventDefault()
+        e.stopPropagation()
+        const positions = getSelectedPositions(
+          store.selectedCell,
+          store.selectedRange
+        )
+        if (positions.length > 0) {
+          const firstId = toCellId(positions[0].row, positions[0].col)
+          const firstCell = store.cells[firstId]
+          const isUnderline = firstCell?.style?.underline || false
+          dispatch(
+            updateCellStyle({ positions, style: { underline: !isUnderline } })
+          )
+        }
+      }
+      // Tab - навигация вправо
+      else if (
+        e.key === 'Tab' &&
+        !isCtrl &&
+        !store.editingCell &&
+        target.tagName !== 'INPUT' &&
+        target.tagName !== 'TEXTAREA'
+      ) {
+        e.preventDefault()
+        e.stopPropagation()
+        if (store.selectedCell) {
+          const newCol = store.selectedCell.col + 1
+          if (newCol < store.colCount) {
+            dispatch(
+              setSelectedCell({ row: store.selectedCell.row, col: newCol })
+            )
+          }
+        }
+      }
+      // Enter - переход на следующую строку
+      else if (
+        e.key === 'Enter' &&
+        !isCtrl &&
+        !store.editingCell &&
+        target.tagName !== 'INPUT' &&
+        target.tagName !== 'TEXTAREA'
+      ) {
+        e.preventDefault()
+        e.stopPropagation()
+        if (store.selectedCell) {
+          const newRow = store.selectedCell.row + 1
+          if (newRow < store.rowCount) {
+            dispatch(
+              setSelectedCell({ row: newRow, col: store.selectedCell.col })
+            )
+          }
+        }
+      }
+      // Escape - отмена редактирования
+      else if (e.key === 'Escape' && store.editingCell) {
+        e.preventDefault()
+        e.stopPropagation()
+        dispatch(setEditingCell(null))
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [dispatch, store, handleManualSave, copy, cut, paste])
 
   // Экспорты
   const handleExportCSV = useCallback(async () => {
@@ -336,7 +394,7 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
   return (
     <div className="spreadsheet">
       <FormattingToolbar />
-      
+
       <div className="spreadsheet-header">
         <button onClick={onBack} className="btn-back">
           ← Назад
@@ -360,8 +418,7 @@ export const Spreadsheet: React.FC<SpreadsheetProps> = ({
             onClick={() => setShowExportMenu(!showExportMenu)}
             className="btn-icon"
             title="Экспорт"
-          >
-          </button>
+          ></button>
           {showExportMenu && (
             <div className="export-menu">
               <button onClick={handleExportCSV} className="export-menu-item">

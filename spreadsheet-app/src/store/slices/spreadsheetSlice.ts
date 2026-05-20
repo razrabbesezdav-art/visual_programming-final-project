@@ -1,5 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { CellData, SpreadsheetStore, Position, CellRange, CellStyle, ClipboardData } from '@/types'
+import {
+  CellData,
+  SpreadsheetStore,
+  Position,
+  CellRange,
+  CellStyle,
+  ClipboardData,
+} from '@/types'
 import { toCellId, parseCellId } from '@/utils/cellUtils'
 import { evaluateFormula, detectType } from '@/utils/formulaParser'
 
@@ -441,8 +448,7 @@ const spreadshetSlice = createSlice({
       state.future = []
     },
 
-    copyRange(state, action: PayloadAction<CellRange>) {
-    },
+    copyRange(state, action: PayloadAction<CellRange>) {},
 
     pasteRange(
       state,

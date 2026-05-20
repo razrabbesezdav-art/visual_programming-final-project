@@ -1,27 +1,27 @@
 export type CellType = 'string' | 'number' | 'boolean' | 'formula'
 
 export interface CellStyle {
-  bold?: boolean;
-  italic?: boolean;
-  underline?: boolean;
-  backgroundColor?: string;
-  textColor?: string;
-  textAlign?: 'left' | 'center' | 'right';
-  numberFormat?: 'number' | 'percent' | 'currency' | 'date';
+  bold?: boolean
+  italic?: boolean
+  underline?: boolean
+  backgroundColor?: string
+  textColor?: string
+  textAlign?: 'left' | 'center' | 'right'
+  numberFormat?: 'number' | 'percent' | 'currency' | 'date'
 }
 
 export interface CellData {
-  rawValue: string;
-  computedValue: string | number | boolean | null;
-  displayValue: string;
-  type: CellType;
-  style?: CellStyle;  
+  rawValue: string
+  computedValue: string | number | boolean | null
+  displayValue: string
+  type: CellType
+  style?: CellStyle
 }
 
 export interface ClipboardData {
-  values: string[][];
-  styles?: CellStyle[][];
-  range: { rows: number; cols: number };
+  values: string[][]
+  styles?: CellStyle[][]
+  range: { rows: number; cols: number }
 }
 
 export interface Position {
@@ -29,7 +29,7 @@ export interface Position {
   col: number
 }
 
-export interface CellRange{
+export interface CellRange {
   start: Position
   end: Position
 }

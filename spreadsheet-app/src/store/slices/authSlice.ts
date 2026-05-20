@@ -75,67 +75,77 @@ export const updateProfile = createAsyncThunk(
     if (!userStr) {
       throw new Error('Пользователь не найден')
     }
-    
+
     const currentUser = JSON.parse(userStr)
-    
+
     const updatedUser = {
       ...currentUser,
       name: data.name,
     }
-    
+
     localStorage.setItem('user', JSON.stringify(updatedUser))
-    
+
     const users = JSON.parse(localStorage.getItem('mock_users') || '[]')
     const userIndex = users.findIndex((u: any) => u.id === currentUser.id)
     if (userIndex !== -1) {
       users[userIndex] = {
         ...users[userIndex],
-        name: data.name
+        name: data.name,
       }
       localStorage.setItem('mock_users', JSON.stringify(users))
     }
-    
+
     return updatedUser
   }
 )
 
 export const changePassword = createAsyncThunk(
   'auth/changePassword',
-  async ({ oldPassword, newPassword }: { oldPassword: string; newPassword: string }) => {
+  async ({
+    oldPassword,
+    newPassword,
+  }: {
+    oldPassword: string
+    newPassword: string
+  }) => {
     const userStr = localStorage.getItem('user')
     if (!userStr) {
       throw new Error('Пользователь не найден')
     }
-    
+
     const currentUser = JSON.parse(userStr)
     const users = JSON.parse(localStorage.getItem('mock_users') || '[]')
     const userIndex = users.findIndex((u: any) => u.id === currentUser.id)
-    
+
     if (userIndex === -1) {
       throw new Error('Пользователь не найден в базе')
     }
-    
+
     const fullUser = users[userIndex]
-    
+
     if (fullUser.password !== oldPassword) {
       throw new Error('Неверный текущий пароль')
     }
-    
+
     if (newPassword.length < 8) {
       throw new Error('Новый пароль должен быть минимум 8 символов')
     }
-    
+
     users[userIndex] = {
       ...fullUser,
-      password: newPassword
+      password: newPassword,
     }
     localStorage.setItem('mock_users', JSON.stringify(users))
-    
+
     return true
   }
 )
 
-const { user: savedUser, accessToken: savedToken, isAuthenticated: savedAuth } = checkAuth()
+const {
+  user: savedUser,
+  accessToken: savedToken,
+  isAuthenticated: savedAuth,
+} = checkAuth()
 
 const authSlice = createSlice({
   name: 'auth',
@@ -151,7 +161,10 @@ const authSlice = createSlice({
     },
     setCredentials: (
       state,
-      action: PayloadAction<{ user: Omit<User, 'password'>; accessToken: string }>
+      action: PayloadAction<{
+        user: Omit<User, 'password'>
+        accessToken: string
+      }>
     ) => {
       state.user = action.payload.user
       state.accessToken = action.payload.accessToken
@@ -187,7 +200,7 @@ const authSlice = createSlice({
         state.loading = false
         state.error = action.error.message || 'Ошибка входа'
       })
-      
+
       .addCase(register.pending, (state) => {
         state.loading = true
         state.error = null
@@ -207,14 +220,14 @@ const authSlice = createSlice({
         state.loading = false
         state.error = action.error.message || 'Ошибка регистрации'
       })
-      
+
       .addCase(logout.fulfilled, (state) => {
         state.user = null
         state.accessToken = null
         state.isAuthenticated = false
         state.error = null
       })
-      
+
       .addCase(updateProfile.pending, (state) => {
         state.loading = true
         state.error = null
@@ -228,7 +241,7 @@ const authSlice = createSlice({
         state.loading = false
         state.error = action.error.message || 'Ошибка обновления профиля'
       })
-      
+
       .addCase(changePassword.pending, (state) => {
         state.loading = true
         state.error = null
@@ -244,5 +257,6 @@ const authSlice = createSlice({
   },
 })
 
-export const { clearError, setCredentials, clearCredentials } = authSlice.actions
+export const { clearError, setCredentials, clearCredentials } =
+  authSlice.actions
 export default authSlice.reducer

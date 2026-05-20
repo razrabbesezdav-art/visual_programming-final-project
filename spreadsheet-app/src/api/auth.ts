@@ -68,7 +68,7 @@ export const authApi = {
     if (users.find((u) => u.email === data.email)) {
       throw new Error('User with this email already exists')
     }
-    
+
     const newUser: User = {
       id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
       email: data.email,
@@ -86,11 +86,11 @@ export const authApi = {
     saveRefreshTokenMap(refreshMap)
 
     return {
-      user: { 
-        id: newUser.id, 
-        email: newUser.email, 
+      user: {
+        id: newUser.id,
+        email: newUser.email,
         name: newUser.name,
-        createdAt: newUser.createdAt
+        createdAt: newUser.createdAt,
       },
       accessToken,
       refreshToken,
@@ -113,11 +113,11 @@ export const authApi = {
     saveRefreshTokenMap(refreshMap)
 
     return {
-      user: { 
-        id: user.id, 
-        email: user.email, 
+      user: {
+        id: user.id,
+        email: user.email,
         name: user.name,
-        createdAt: user.createdAt
+        createdAt: user.createdAt,
       },
       accessToken,
       refreshToken,

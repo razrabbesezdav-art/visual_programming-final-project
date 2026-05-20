@@ -80,8 +80,11 @@ export const Cell: React.FC<CellProps> = memo(
 
     const getFormattedValue = (): string => {
       if (!value) return ''
-      
-      if (cellStyleProps?.numberFormat && cellStyleProps.numberFormat !== 'number') {
+
+      if (
+        cellStyleProps?.numberFormat &&
+        cellStyleProps.numberFormat !== 'number'
+      ) {
         const num = parseFloat(value)
         if (!isNaN(num)) {
           switch (cellStyleProps.numberFormat) {
@@ -108,10 +111,10 @@ export const Cell: React.FC<CellProps> = memo(
       whiteSpace: 'nowrap',
       textOverflow: 'ellipsis',
       boxSizing: 'border-box',
-      backgroundColor: isSelected 
-        ? '#e3f2fd' 
-        : isInRange 
-          ? '#f0f8ff' 
+      backgroundColor: isSelected
+        ? '#e3f2fd'
+        : isInRange
+          ? '#f0f8ff'
           : cellStyleProps?.backgroundColor || 'white',
       color: cellStyleProps?.textColor || 'black',
       fontWeight: cellStyleProps?.bold ? 'bold' : 'normal',

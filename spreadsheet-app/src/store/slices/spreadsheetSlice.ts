@@ -447,7 +447,7 @@ const spreadshetSlice = createSlice({
       state.future = []
     },
 
-    copyRange(_state, _action) {
+    copyRange() {
       // необходимый текст для работы программы)
     },
 

@@ -6,7 +6,7 @@ import {
   cutRange,
 } from '@/store/slices/spreadsheetSlice'
 import { ClipboardData } from '@/types'
-import { getRangeValues, getRangeStyles } from '@/utils/selectionUtils'
+import { getRangeValues } from '@/utils/selectionUtils'
 
 export function useClipboard() {
   const dispatch = useAppDispatch()
